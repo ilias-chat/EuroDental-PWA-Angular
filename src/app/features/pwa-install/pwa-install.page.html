@@ -28,8 +28,19 @@
       } @else if (pwa.canInstall()) {
         <ion-button expand="block" class="install-action" (click)="pwa.install()">
           <ion-icon slot="start" name="download-outline"></ion-icon>
-          Installer EuroDental
+          Installer l'application
         </ion-button>
+        <p class="install-fallback-message">
+          Si le bouton ne fonctionne pas, suivez les instructions ci-dessous.
+        </p>
+        <div class="install-instructions">
+          <h2>Installation manuelle</h2>
+          <ol>
+            <li>Ouvrez le menu du navigateur.</li>
+            <li>Choisissez <strong>Installer l'application</strong> ou <strong>Ajouter à l'écran d'accueil</strong>.</li>
+            <li>Confirmez l'installation.</li>
+          </ol>
+        </div>
       } @else if (pwa.isIos) {
         <div class="install-instructions">
           <h2>Sur iPhone ou iPad</h2>
