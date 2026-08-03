@@ -108,4 +108,14 @@ jobs:
           echo "HTTP $code"
           head -c 400 /tmp/pwa-body.txt || true
           echo
-          test "$code" = "200"
+          if [ "$code" != "200" ]; then
+            echo "::error::PWA URL returned HTTP $code."
+            exit 1
+          fi
+
+          if ! grep -qi '<title>EuroDental</title>' /tmp/pwa-body.txt; then
+            echo "::error::PWA URL is not serving the EuroDental Angular app."
+            exit 1
+          fi
+
+          echo "PWA health check passed."
