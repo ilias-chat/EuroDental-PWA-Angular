@@ -1,0 +1,174 @@
+ion-modal.leave-confirm-modal {
+  --height: auto;
+  --background: transparent;
+  align-items: flex-end;
+
+  &::part(backdrop) {
+    background: var(--ed-scrim);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  &::part(content) {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    height: auto;
+    max-height: 55vh;
+    overflow: hidden;
+    border-radius: var(--ed-radius-xl) var(--ed-radius-xl) 0 0;
+    background: var(--ed-glass-panel);
+    backdrop-filter: var(--ed-glass-blur);
+    -webkit-backdrop-filter: var(--ed-glass-blur);
+    border-top: 1px solid var(--ed-glass-border);
+    box-shadow: var(--ed-glass-highlight), var(--ed-shadow-fab);
+  }
+
+  .ion-page,
+  .ion-delegate-host {
+    height: auto;
+    max-height: 55vh;
+    overflow: hidden;
+    background: transparent !important;
+  }
+
+  .leave-confirm-shell {
+    display: flex;
+    flex-direction: column;
+    max-height: 55vh;
+    overflow: hidden;
+  }
+
+  .services-picker-handle {
+    flex-shrink: 0;
+    width: 48px;
+    height: 5px;
+    margin: 10px auto 6px;
+    border-radius: var(--ed-radius-full);
+    background: var(--ed-primary);
+    opacity: 0.55;
+  }
+
+  .services-picker-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 56px;
+    padding: 8px var(--ed-container-padding) 12px;
+    border-bottom: 1px solid var(--ed-glass-border);
+  }
+
+  .services-picker-title {
+    margin: 0;
+    flex: 1;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ed-on-surface);
+  }
+
+  .services-picker-close {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    border-radius: var(--ed-radius-full);
+    background: var(--ed-surface-container-low);
+    color: var(--ed-on-surface-variant);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  .leave-confirm-body {
+    padding: 16px var(--ed-container-padding);
+  }
+
+  .leave-confirm-message-block {
+    margin-bottom: 0;
+  }
+
+  .leave-confirm-message {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ed-on-surface);
+  }
+
+  .leave-confirm-footer {
+    flex-shrink: 0;
+    padding: 12px var(--ed-container-padding) calc(12px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--ed-glass-border);
+  }
+
+  .leave-confirm-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .leave-confirm-btn {
+    flex: 1;
+    min-height: 48px;
+    padding: 12px 16px;
+    border-radius: var(--ed-radius-full);
+    border: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    &:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    &--secondary {
+      background: var(--ed-surface-container-lowest);
+      color: var(--ed-on-surface);
+      border: 1px solid var(--ed-outline-variant);
+    }
+
+    &--danger {
+      background: var(--ed-error);
+      color: var(--ed-on-primary);
+      box-shadow: 0 4px 14px rgba(186, 26, 26, 0.25);
+    }
+  }
+}
+
+html:not([data-ed-theme='dark']) ion-modal.leave-confirm-modal .leave-confirm-footer {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html[data-ed-theme='dark'] ion-modal.leave-confirm-modal {
+  .services-picker-close {
+    background: var(--ed-surface-container);
+  }
+
+  .leave-confirm-footer {
+    background: var(--ed-modal-footer-surface);
+    border-top-color: var(--ed-modal-footer-border-color);
+  }
+
+  .leave-confirm-btn--secondary {
+    background: var(--ed-surface-container-low);
+    border-color: var(--ed-outline-variant);
+  }
+}

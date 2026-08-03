@@ -1,0 +1,163 @@
+﻿@use '../../../../theme/host-surfaces';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+:host ::ng-deep {
+  @include host-surfaces.apply-page-surfaces;
+
+  .description-block {
+    background: var(--ed-surface-container-low);
+    border-radius: var(--ed-radius-md, 1rem);
+    border: 1px solid var(--ed-surface-container-highest);
+    padding: 14px 16px;
+    margin-top: 8px;
+  }
+}
+
+.detail-segment-bar {
+  flex-shrink: 0;
+  padding: 10px var(--ed-container-padding) 12px;
+  max-width: 560px;
+  width: 100%;
+  margin-inline: auto;
+  box-sizing: border-box;
+  background: var(--ed-surface);
+  overflow: hidden;
+}
+
+:host ::ng-deep .detail-segment {
+  margin: 0;
+  width: 100%;
+  --background: transparent;
+  border-radius: 0;
+  padding: 0;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+    height: 0;
+    width: 0;
+  }
+
+  .segment-scroll {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+      height: 0;
+      width: 0;
+    }
+  }
+
+  ion-segment-button {
+    --indicator-height: 0;
+    --indicator-color: transparent;
+    --indicator-box-shadow: none;
+    --background: var(--ed-surface-container);
+    --background-checked: var(--ed-primary);
+    --background-hover: var(--ed-surface-container);
+    --background-focused: var(--ed-surface-container);
+    --color: var(--ed-on-surface-variant);
+    --color-checked: var(--ed-on-primary);
+    --color-hover: var(--ed-on-surface-variant);
+    --color-focused: var(--ed-on-surface-variant);
+    --border-radius: 9999px;
+    --padding-top: 10px;
+    --padding-bottom: 10px;
+    --padding-start: 18px;
+    --padding-end: 18px;
+    min-height: 42px;
+    min-width: auto;
+    margin: 0;
+    font-family: var(--ion-font-family);
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    transition: background 0.2s ease, color 0.2s ease;
+
+    &::part(indicator-background) {
+      display: none;
+    }
+
+    &::part(native) {
+      border-radius: 9999px;
+    }
+
+    ion-label {
+      margin: 0;
+    }
+  }
+
+  ion-segment-button.segment-button-checked {
+    --background: var(--ed-primary);
+    --color: var(--ed-on-primary);
+  }
+}
+
+.detail-content {
+  --background: var(--ed-surface);
+  flex: 1;
+  min-height: 0;
+}
+
+// FABs live in task-detail.page.html (not tab templates) — styles must be on this component.
+.services-fab-group {
+  position: fixed;
+  right: 20px;
+  bottom: calc(var(--ed-tab-bar-block-height, 60px) + 16px);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  pointer-events: none;
+
+  .services-fab {
+    pointer-events: auto;
+  }
+}
+
+.services-fab {
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border: none;
+  border-radius: var(--ed-radius-full);
+  color: var(--ed-on-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--ed-shadow-fab);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+
+  i {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  &--propose {
+    background: var(--ed-gradient-fab-warn);
+    box-shadow: 0 8px 24px var(--ed-action-warning-shadow-lg);
+  }
+
+  &--manage {
+    background: var(--ed-gradient-fab-primary);
+    box-shadow: 0 8px 24px var(--ed-gradient-fab-primary-shadow);
+  }
+}

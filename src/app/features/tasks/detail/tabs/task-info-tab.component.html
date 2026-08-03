@@ -1,0 +1,91 @@
+@if (f.task(); as t) {
+  <div class="ed-page ed-page-stack tab-panel">
+    <article class="ed-card summary-card">
+      <div class="card-watermark" aria-hidden="true"><i class="fa-solid fa-wrench"></i></div>
+
+      <div class="summary-card-top">
+        <div class="summary-card-intro">
+          <p class="ed-type-label">{{ t.task_type }}</p>
+          <h2 class="ed-headline-md summary-title">{{ t.task_name }}</h2>
+        </div>
+        <div class="summary-status-slot">
+          <app-task-status-badge [status]="t.status" [urgent]="t.urgent" />
+        </div>
+      </div>
+
+      <div class="payment-chips">
+        @if (t.is_paid) {
+          <span class="info-pill success"><i class="fa-solid fa-circle-check"></i> {{ t.amount_paid }} DH</span>
+        } @else {
+          <span class="info-pill warn"><i class="fa-solid fa-money-bill"></i> Non payé</span>
+        }
+      </div>
+      <div class="description-block">
+        <div class="description-header">
+          <h3 class="section-label ed-label">Description</h3>
+          @if (f.canEditDescription(t)) {
+            <button
+              type="button"
+              class="description-edit-btn"
+              (click)="f.openDescriptionEditModal()"
+              aria-label="Modifier la description"
+            >
+              <i class="fa-solid fa-pen" aria-hidden="true"></i>
+            </button>
+          }
+        </div>
+        @if (t.description) {
+          <div class="ed-body-lg desc-text desc-markdown" [innerHTML]="f.parsedDescription(t.description)"></div>
+        } @else {
+          <p class="ed-body-md empty-desc">Aucune description</p>
+        }
+      </div>
+    </article>
+
+    <section class="ed-card client-card">
+      <img [src]="f.clientImage(t)" alt="" class="client-img" />
+      <div>
+        <p class="ed-headline-md client-name">{{ t.client_name || 'Client non assigné' }}</p>
+        @if (t.client_city) {
+          <p class="ed-body-md location"><i class="fa-solid fa-location-dot"></i> {{ t.client_city }}</p>
+        }
+      </div>
+    </section>
+
+    <section class="ed-card team-card">
+      <div class="team-card-body">
+        <h3 class="section-label ed-label">Équipe d'intervention</h3>
+        @if (t.technician) {
+          <div class="team-lead">
+            <app-user-avatar
+              [name]="t.technician.name"
+              [image]="t.technician.image"
+              [highlight]="f.isTeamMemberHighlighted(t, t.technician.id)"
+            />
+            <div>
+              <p class="lead-name">{{ t.technician.name }}</p>
+              <p class="ed-body-md team-role">Technicien principal</p>
+            </div>
+          </div>
+        }
+        @if (t.helping_users.length) {
+          <div class="team-helpers">
+            <p class="team-helpers-label ed-label">Assistants</p>
+            <ul class="team-helpers-list">
+              @for (h of t.helping_users; track h.id) {
+                <li class="team-helper-row">
+                  <app-user-avatar
+                    [name]="h.name"
+                    [image]="h.image"
+                    [highlight]="f.isTeamMemberHighlighted(t, h.id)"
+                  />
+                  <span class="team-helper-name">{{ h.name }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+}

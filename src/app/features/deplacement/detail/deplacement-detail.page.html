@@ -1,0 +1,64 @@
+<app-app-header [showBack]="true" [backHref]="f.deplacementListBackHref()" />
+
+<div class="detail-segment-bar">
+  <ion-segment
+    class="detail-segment"
+    [value]="f.tab()"
+    (ionChange)="setTab($any($event.detail.value))"
+    scrollable="true"
+  >
+    <ion-segment-button value="details"><ion-label>Détails</ion-label></ion-segment-button>
+    <ion-segment-button value="timeline"><ion-label>Timeline</ion-label></ion-segment-button>
+    <ion-segment-button value="expenses"><ion-label>Dépenses</ion-label></ion-segment-button>
+    <ion-segment-button value="tasks">
+      <ion-label>Tâches@if (f.deployment(); as dep) { ({{ dep.tasks_count }}) }</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+</div>
+
+<ion-content class="detail-content ed-content-padded">
+  @if (f.loading()) {
+    <div class="center"><ion-spinner name="crescent" color="primary"></ion-spinner></div>
+  } @else if (f.deployment()) {
+    @switch (f.tab()) {
+      @case ('details') {
+        <app-deployment-info-tab />
+      }
+      @case ('timeline') {
+        <app-deployment-timeline-tab />
+      }
+      @case ('expenses') {
+        <app-deployment-expenses-tab />
+      }
+      @case ('tasks') {
+        <app-deployment-tasks-tab />
+      }
+    }
+  }
+</ion-content>
+
+@if (f.deployment(); as dep) {
+  @if (f.tab() === 'tasks' && dep.is_responsible && f.canWriteDeployment()) {
+    <button
+      type="button"
+      class="deploy-add-task-fab"
+      (click)="f.openAddTaskModal()"
+      aria-label="Ajouter une tâche"
+    >
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
+    </button>
+  }
+  @if (f.tab() === 'expenses' && dep.is_responsible && !f.hasDeploymentEnded()) {
+    <button
+      type="button"
+      class="deploy-add-expense-fab"
+      [class.deploy-add-expense-fab--with-total]="!!dep.expenses?.length"
+      (click)="f.openAddExpense()"
+      aria-label="Ajouter une dépense"
+    >
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
+    </button>
+  }
+}
+
+<app-deplacement-detail-modals />

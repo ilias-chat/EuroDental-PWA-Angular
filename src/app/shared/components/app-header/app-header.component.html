@@ -1,0 +1,42 @@
+<ion-header class="app-header ion-no-border">
+  <ion-toolbar class="app-header-toolbar">
+    <div class="header-inner">
+      <div class="header-start">
+        @if (showBack()) {
+          <button type="button" class="back-btn" (click)="goBack()" aria-label="Retour">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+        }
+      </div>
+
+      <div class="header-end">
+        <button
+          type="button"
+          class="notif-btn"
+          (click)="onNotificationsClick()"
+          aria-label="Notifications"
+        >
+          <i class="fa-solid fa-bell"></i>
+          @if (notifications.unreadCount() > 0) {
+            <span class="notif-badge">{{ notifications.unreadCount() > 99 ? '99+' : notifications.unreadCount() }}</span>
+          }
+        </button>
+        @if (auth.user(); as u) {
+          <button
+            type="button"
+            class="avatar-btn"
+            (click)="openUserMenu()"
+            [attr.aria-expanded]="menu.open()"
+            aria-haspopup="dialog"
+            aria-label="Ouvrir le menu"
+          >
+            <img [src]="avatarSrc(u)" [alt]="u.name" (error)="onAvatarError(u)" />
+          </button>
+        }
+      </div>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<app-app-side-menu />
+<app-notifications-panel />

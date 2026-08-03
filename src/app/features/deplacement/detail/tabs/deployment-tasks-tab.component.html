@@ -1,0 +1,65 @@
+@if (f.deployment(); as dep) {
+  <div class="ed-page ed-page-stack tab-panel">
+    @if (!dep.tasks?.length) {
+      <div class="ed-card empty-box">
+        <span class="empty-box__icon" aria-hidden="true">
+          <i class="fa-solid fa-list-check"></i>
+        </span>
+        <p class="ed-body-md">Aucune tâche dans ce déplacement</p>
+        @if (dep.is_responsible && f.canWriteDeployment()) {
+          <button type="button" class="empty-box__action" (click)="f.openAddTaskModal()">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            <span>Ajouter une tâche</span>
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="deplacement-task-list">
+        @for (task of dep.tasks; track task.id) {
+          <article
+            class="deplacement-task-card ed-card"
+            [class.deplacement-task-card--active]="task.has_ongoing_visit"
+            (click)="f.openTask(task.id)"
+          >
+            <div class="deplacement-task-card__body">
+              <div class="deplacement-task-card__main">
+                <h4 class="deplacement-task-card__title">{{ task.task_name }}</h4>
+                <p class="ed-type-label">{{ task.task_type }}</p>
+              </div>
+              <app-task-status-badge
+                [status]="task.status"
+                [urgent]="task.urgent ?? false"
+                variant="card"
+              />
+            </div>
+            <footer class="deplacement-task-card__footer">
+              @if (task.technician) {
+                <div class="deplacement-task-card__tech">
+                  <app-user-avatar
+                    [name]="task.technician.name"
+                    [image]="task.technician.image"
+                    [highlight]="task.is_main_technician ?? false"
+                    size="sm"
+                  />
+                  <span>{{ task.technician.name }}</span>
+                </div>
+              }
+              @if (task.helping_users?.length) {
+                <div class="deplacement-task-card__helpers">
+                  @for (helper of task.helping_users; track helper.id) {
+                    <app-user-avatar
+                      [name]="helper.name"
+                      [image]="helper.image"
+                      [highlight]="task.is_helping_user ?? false"
+                      size="sm"
+                    />
+                  }
+                </div>
+              }
+            </footer>
+          </article>
+        }
+      </div>
+    }
+  </div>
+}

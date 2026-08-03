@@ -1,0 +1,73 @@
+// Modal footer — global class selectors (required: slotted modal content is not styled
+// via ion-modal descendants or Angular encapsulation).
+
+ion-modal.services-picker-modal {
+  --background: transparent;
+  --ion-background-color: transparent;
+}
+
+.services-picker-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  flex-shrink: 0;
+  padding: 12px var(--ed-container-padding) calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--ed-glass-border);
+}
+
+// Short modals: footer in document flow with gap above the action bar
+ion-modal.propose-service-modal .services-picker-footer,
+ion-modal.client-payment-modal .services-picker-footer,
+ion-modal.ticket-form-modal .services-picker-footer,
+ion-modal.ticket-resolve-confirm-modal .services-picker-footer,
+ion-modal.create-task-modal .services-picker-footer,
+ion-modal.deplacement-expense-modal .services-picker-footer,
+ion-modal.join-member-modal .services-picker-footer,
+ion-modal.admin-delivery-modal .services-picker-footer,
+ion-modal.delivery-received-modal .services-picker-footer,
+ion-modal.description-edit-modal .services-picker-footer {
+  position: static !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  flex: 0 0 auto !important;
+  margin-top: var(--ed-modal-body-footer-gap, 16px) !important;
+}
+
+// Leave modals: footer in-flow; glass (light) / solid (dark) in leave-*-modals.global.scss
+ion-modal.leave-request-form-modal .services-picker-footer,
+ion-modal.leave-detail-modal .leave-detail-footer,
+ion-modal.leave-confirm-modal .leave-confirm-footer,
+ion-modal.ticket-resolve-confirm-modal .ticket-resolve-confirm-footer {
+  position: static !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  margin-top: 0 !important;
+}
+
+// Light: inherit glass from ion-modal::part(content) — no opaque footer layer
+html:not([data-ed-theme='dark']) .services-picker-footer {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+// Light: services list — extra frost when cards scroll under the sticky bar
+html:not([data-ed-theme='dark']) .services-picker-footer--sticky {
+  background: rgba(255, 255, 255, 0.32);
+  backdrop-filter: blur(40px) saturate(1.65);
+  -webkit-backdrop-filter: blur(40px) saturate(1.65);
+  box-shadow: 0 -8px 32px var(--ed-shadow-sheet);
+}
+
+html[data-ed-theme='dark'] .services-picker-footer {
+  background: var(--ed-modal-footer-surface);
+  border-top-color: var(--ed-modal-footer-border-color);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 -8px 24px var(--ed-shadow-sheet);
+}

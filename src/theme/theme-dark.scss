@@ -1,0 +1,129 @@
+// Dark theme — overrides tokens when html[data-ed-theme='dark']
+// Primitives stay in variables.scss (:root); only semantic surfaces change here.
+
+[data-ed-theme='dark'] {
+  --ed-primary-fixed: #1e3a5f;
+  --ed-primary-tint-surface: #1a2744;
+
+  --ed-surface: #121318;
+  --ed-surface-container-lowest: #1c1e26;
+  --ed-surface-container: #282b36;
+  --ed-surface-container-low: #23262f;
+  --ed-surface-container-alt: #2a2d38;
+  --ed-surface-container-highest: #3a3e4c;
+  --ed-surface-navy: #0f1f33;
+
+  --ed-on-surface: #e8eaf3;
+  --ed-on-surface-variant: #b4b9c9;
+  --ed-outline: #8b91a3;
+  --ed-outline-variant: #4a4f5e;
+  --ed-outline-variant-alt: #454a58;
+  --ed-outline-variant-input: #52586a;
+
+  --ed-error-container: #5c1a1a;
+  --ed-on-error: #ffb4ab;
+  --ed-chip-error-bg: #4a1c1c;
+  --ed-chip-error-text: #ffc9c2;
+  --ed-chip-error-border: #8b3535;
+  --ed-chip-info-bg: #1a2d4d;
+  --ed-chip-info-text: #a8c7ff;
+  --ed-chip-info-border: #2a4570;
+  --ed-chip-success-bg: #163d2a;
+  --ed-chip-success-text: #7ddea8;
+  --ed-chip-success-border: #2d6b48;
+  --ed-chip-stock-high-bg: #163d2a;
+  --ed-chip-stock-high-text: #7ddea8;
+  --ed-chip-stock-high-border: #2d6b48;
+  --ed-chip-stock-mid-bg: #3d3418;
+  --ed-chip-stock-mid-text: #f5d565;
+  --ed-chip-stock-mid-border: #8b7324;
+  --ed-chip-stock-low-bg: #4a1c1c;
+  --ed-chip-stock-low-text: #ffc9c2;
+  --ed-chip-stock-low-border: #8b3535;
+  --ed-chip-warning-bg: #3d2818;
+  --ed-chip-warning-text: #fdba74;
+  --ed-chip-warning-border: #c2410c;
+  --ed-chip-purple-bg: #2e1f42;
+  --ed-chip-purple-text: #d8b4fe;
+  --ed-chip-purple-border: #7e22ce;
+  --ed-task-count-chip-bg: #1a2d4d;
+  --ed-task-count-chip-text: #a8c7ff;
+  --ed-task-count-chip-border: #3d5f8c;
+  --ed-tab-active-bg: #1a2d4d;
+  --ed-tab-active-text: #a8c7ff;
+  --ed-tab-active-border: #3d5f8c;
+  --ed-empty-hint-bg: #1a2d4d;
+  --ed-empty-hint-text: #a8c7ff;
+  --ed-leave-on-leave-bg: #1a2d4d;
+  --ed-leave-on-leave-text: #a8c7ff;
+  --ed-leave-on-leave-border: #2a4570;
+  --ed-leave-completed-bg: #282b36;
+  --ed-leave-completed-text: #b4b9c9;
+  --ed-leave-completed-border: #4a4f5e;
+  --ed-empty-hint-border: #3d5f8c;
+
+  --ed-success-container: rgba(72, 180, 120, 0.18);
+  --ed-error-muted-container: rgba(255, 120, 120, 0.12);
+  --ed-primary-muted-container: rgba(100, 160, 255, 0.14);
+  --ed-secondary-highlight: rgba(72, 180, 120, 0.22);
+
+  --ed-primary-alpha-06: rgba(100, 160, 255, 0.06);
+  --ed-primary-alpha-08: rgba(100, 160, 255, 0.08);
+  --ed-primary-alpha-10: rgba(100, 160, 255, 0.1);
+  --ed-primary-alpha-12: rgba(100, 160, 255, 0.12);
+  --ed-primary-alpha-18: rgba(100, 160, 255, 0.18);
+  --ed-primary-alpha-20: rgba(100, 160, 255, 0.2);
+  --ed-primary-alpha-22: rgba(100, 160, 255, 0.22);
+  --ed-primary-alpha-25: rgba(100, 160, 255, 0.25);
+  --ed-primary-alpha-35: rgba(100, 160, 255, 0.35);
+  --ed-primary-alpha-45: rgba(100, 160, 255, 0.45);
+
+  --ed-secondary-alpha-12: rgba(72, 180, 120, 0.14);
+  --ed-secondary-alpha-25: rgba(72, 180, 120, 0.28);
+
+  --ed-on-surface-alpha-03: rgba(232, 234, 243, 0.03);
+  --ed-on-surface-alpha-04: rgba(232, 234, 243, 0.04);
+  --ed-on-surface-alpha-06: rgba(232, 234, 243, 0.06);
+  --ed-on-surface-alpha-08: rgba(232, 234, 243, 0.08);
+
+  --ed-scrim: rgba(0, 0, 0, 0.55);
+  --ed-side-menu-backdrop: rgba(0, 0, 0, 0.62);
+  --ed-shadow-overlay: rgba(0, 0, 0, 0.45);
+  --ed-shadow-sheet: rgba(0, 0, 0, 0.28);
+
+  /* Dark glassmorphism: low-opacity frost + blur (see content behind) */
+  --ed-glass-panel: rgba(255, 255, 255, 0.1);
+  --ed-glass-surface: rgba(255, 255, 255, 0.12);
+  --ed-glass-surface-light: rgba(255, 255, 255, 0.08);
+  --ed-glass-surface-medium: rgba(255, 255, 255, 0.16);
+  --ed-glass-surface-soft: rgba(255, 255, 255, 0.1);
+  --ed-glass-surface-faint: rgba(255, 255, 255, 0.06);
+  --ed-glass-border: rgba(255, 255, 255, 0.2);
+  --ed-glass-blur: blur(40px) saturate(1.75);
+  --ed-glass-blur-sm: blur(24px) saturate(1.6);
+  --ed-glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+
+  --ed-outline-variant-alpha-45: rgba(74, 79, 94, 0.55);
+
+  --ed-modal-footer-surface: var(--ed-surface-container-low);
+  --ed-modal-footer-border-color: var(--ed-surface-container-highest);
+
+  --ed-tab-bar-shadow: 0 -4px 20px rgba(0, 0, 0, 0.35);
+  --ed-soft-ui-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.35), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+
+  --ed-gradient-header-date: linear-gradient(
+    135deg,
+    var(--ed-primary-fixed) 0%,
+    var(--ed-surface-container) 100%
+  );
+
+  --ion-background-color: var(--ed-surface);
+  --ion-text-color: var(--ed-on-surface);
+  --ion-card-background: var(--ed-surface-container-lowest);
+  --ion-toolbar-background: var(--ed-surface-container-lowest);
+  --ion-border-color: var(--ed-outline-variant);
+  --ion-tab-bar-background: var(--ed-surface-container-lowest);
+  --ion-tab-bar-border-color: var(--ed-surface-container-highest);
+
+  color-scheme: dark;
+}

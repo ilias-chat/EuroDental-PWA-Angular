@@ -1,0 +1,238 @@
+<app-app-header [showBack]="true" [backHref]="auth.defaultAppTabPath()" />
+
+<ion-content class="suivi-page ed-content-padded">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="ed-page ed-page-stack suivi-page-inner">
+    <div class="suivi-user-filter-wrap" (click)="$event.stopPropagation()">
+      <label class="suivi-field-label ed-label">Utilisateur</label>
+      <app-user-filter-picker
+        [users]="f.trackingUsers()"
+        [loading]="f.usersLoading()"
+        [selectedUserId]="f.selectedUserId()"
+        (selectedUserIdChange)="onUserFilterChange($event)"
+      />
+    </div>
+
+    <nav class="suivi-tabs" aria-label="Onglets suivi">
+      <button
+        type="button"
+        class="suivi-tab"
+        [class.suivi-tab--active]="f.activeTab() === 'calendar'"
+        (click)="setTab('calendar')"
+      >
+        Calendrier
+      </button>
+      <button
+        type="button"
+        class="suivi-tab"
+        [class.suivi-tab--active]="f.activeTab() === 'tracking'"
+        (click)="setTab('tracking')"
+      >
+        Suivi
+      </button>
+    </nav>
+
+    @if (f.activeTab() === 'calendar') {
+      <section class="suivi-calendar" aria-label="Calendrier des tâches">
+        <div class="month-nav">
+          <button type="button" class="month-nav-btn" (click)="f.previousMonth()" aria-label="Mois précédent">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <div class="month-nav-center">
+            <h2 class="month-title">{{ f.monthHeaderLabel() }}</h2>
+            <p class="month-subtitle">{{ f.monthTaskCount() }} tâche{{ f.monthTaskCount() > 1 ? 's' : '' }} ce mois</p>
+          </div>
+          <button type="button" class="month-nav-btn" (click)="f.nextMonth()" aria-label="Mois suivant">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+
+        @if (f.calendarError()) {
+          <div class="error-banner" role="alert">{{ f.calendarError() }}</div>
+        }
+
+        @if (f.calendarLoading()) {
+          <div class="calendar-loading">
+            <ion-spinner name="crescent"></ion-spinner>
+          </div>
+        } @else {
+          <div class="calendar-grid-wrap ed-card">
+            <div class="calendar-weekdays">
+              @for (label of weekdayLabels; track label) {
+                <span class="weekday-label">{{ label }}</span>
+              }
+            </div>
+            <div class="calendar-days">
+              @for (day of f.calendarDays(); track day.date) {
+                <button
+                  type="button"
+                  class="calendar-day"
+                  [class.calendar-day--muted]="!day.isCurrentMonth"
+                  [class.calendar-day--today]="day.isToday"
+                  [disabled]="!day.isCurrentMonth"
+                  (click)="f.openDayModal(day.date)"
+                >
+                  <span class="calendar-day-num">{{ day.dayNumber }}</span>
+                  @if (f.tasksForDayCell(day.date).length) {
+                    <span class="calendar-dots" aria-hidden="true">
+                      @for (task of f.tasksForDayCell(day.date); track task.id) {
+                        <span
+                          class="calendar-dot"
+                          [style.background-color]="statusDotColor(task.status)"
+                        ></span>
+                      }
+                    </span>
+                  }
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </section>
+    } @else {
+      <section class="suivi-tracking" aria-label="Suivi des tâches">
+        <header class="suivi-tracking-header">
+          <h2 class="suivi-tracking-title">
+            Suivi des Tâches
+            <span class="suivi-tracking-date">({{ f.trackingLongDateLabel() }})</span>
+          </h2>
+        </header>
+
+        <div class="suivi-week-nav">
+          <button type="button" class="suivi-week-btn" (click)="f.previousTrackingWeek()" aria-label="Semaine précédente">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <div class="suivi-week-days">
+            @for (day of f.trackingWeekDays(); track day.date) {
+              <button
+                type="button"
+                class="suivi-week-day"
+                [class.suivi-week-day--active]="f.trackingDate() === day.date"
+                (click)="f.selectTrackingDate(day.date)"
+              >
+                <span class="suivi-week-day-name">{{ day.dayName }}</span>
+                <span class="suivi-week-day-num">{{ day.dayNumber }}</span>
+              </button>
+            }
+          </div>
+          <button type="button" class="suivi-week-btn" (click)="f.nextTrackingWeek()" aria-label="Semaine suivante">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+
+        @if (f.trackingError()) {
+          <p class="suivi-error">{{ f.trackingError() }}</p>
+        }
+
+        <div class="suivi-tracking-body">
+          @if (f.trackingLoading()) {
+            <div class="suivi-loading">
+              <ion-spinner name="crescent"></ion-spinner>
+              <p>Chargement du suivi…</p>
+            </div>
+          } @else if (!f.selectedUserId()) {
+            <div class="suivi-empty">
+              <p>Sélectionnez un utilisateur dans le filtre ci-dessus pour voir le détail du jour.</p>
+            </div>
+          } @else if (!f.trackingEvents().length) {
+            <div class="suivi-empty">
+              <i class="fa-solid fa-clock suivi-empty-icon" aria-hidden="true"></i>
+              <h3>Aucune activité</h3>
+              <p>Aucune tâche commencée ou terminée pour cette date.</p>
+            </div>
+          } @else {
+            <div class="suivi-timeline">
+              @for (ev of f.trackingEvents(); track ev.id) {
+                <div class="suivi-timeline-row">
+                  <div class="suivi-timeline-rail">
+                    <div class="suivi-timeline-line" aria-hidden="true"></div>
+                    <div class="suivi-timeline-dot-wrap">
+                      <div class="suivi-timeline-dot" [ngClass]="trackingTimelineDotClass(ev.event_type)"></div>
+                    </div>
+                  </div>
+                  <div class="suivi-timeline-card">
+                    <div class="suivi-timeline-card-head">
+                      <span class="suivi-timeline-time">{{ ev.time }}</span>
+                      <span class="suivi-timeline-pill" [ngClass]="trackingPillClass(ev.event_type)">
+                        <i class="fa-solid" [class]="trackingEventIcon(ev.event_type)" aria-hidden="true"></i>
+                        {{ trackingEventLabel(ev.event_type) }}
+                      </span>
+                    </div>
+                    <div class="suivi-timeline-card-body">
+                      <p class="suivi-timeline-desc">{{ trackingEventDescription(ev) }}</p>
+                      @if (ev.client_name) {
+                        <div class="suivi-timeline-client">
+                          <img [src]="eventClientImage(ev)" alt="" class="suivi-timeline-client-img" />
+                          <div>
+                            <p class="suivi-timeline-client-name">{{ ev.client_name }}</p>
+                            @if (ev.client_city) {
+                              <p class="suivi-timeline-client-city">{{ ev.client_city }}</p>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </section>
+    }
+  </div>
+</ion-content>
+
+<!-- Day tasks modal -->
+<ion-modal
+  class="suivi-day-modal"
+  [isOpen]="f.showDayTasksModal()"
+  (didDismiss)="f.onDayModalDismiss()"
+>
+  <ng-template>
+    <div class="suivi-day-shell">
+      <header class="suivi-day-header">
+        <h2>{{ f.dayModalTitle() }}</h2>
+        <button type="button" (click)="f.closeDayModal()" aria-label="Fermer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </header>
+      <div class="suivi-day-scroll">
+        @if (!f.dayModalTasks().length) {
+          <div class="suivi-empty suivi-empty--compact">
+            <p>Aucune tâche pour cette date.</p>
+          </div>
+        } @else {
+          <div class="task-list">
+            @for (task of f.dayModalTasks(); track task.id) {
+              <article class="task-card" (click)="f.openTask(task)">
+                <div class="task-card-inner">
+                  <div class="task-card-top">
+                    <span class="task-card-type ed-type-label">{{ taskTypeLabel(task.task_type) }}</span>
+                    <app-task-status-badge [status]="task.status" [urgent]="task.urgent" />
+                  </div>
+                  <h3 class="task-card-title">{{ task.task_name }}</h3>
+                  <div class="task-card-bottom">
+                    <div class="team-stack">
+                      @if (teamMembers(task).length) {
+                        @for (member of visibleTeam(task); track member.id) {
+                          <app-user-avatar [name]="member.name" [image]="member.image" size="sm" />
+                        }
+                        @if (extraTeamCount(task) > 0) {
+                          <span class="team-overflow">+{{ extraTeamCount(task) }}</span>
+                        }
+                      }
+                    </div>
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

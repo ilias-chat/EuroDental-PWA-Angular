@@ -1,0 +1,88 @@
+@if (f.task(); as t) {
+  <div class="ed-page ed-page-stack tab-panel services-tab-panel">
+    @if (!t.is_main_technician) {
+      <div class="ed-card ed-restricted-card">
+        <span class="ed-restricted-card__icon" aria-hidden="true">
+          <i class="fa-solid fa-user-shield"></i>
+        </span>
+        <p class="ed-restricted-card__text ed-body-md">
+          Seul le technicien principal de la tâche peut ajouter ou gérer les services.
+        </p>
+      </div>
+    } @else {
+      <div class="services-section-header">
+        <h3 class="section-label ed-label">Services fournis</h3>
+      </div>
+
+      @if (!f.canManageServices(t)) {
+        <div class="ed-card ed-restricted-card">
+          <span class="ed-restricted-card__icon" aria-hidden="true">
+            <i class="fa-solid fa-circle-info"></i>
+          </span>
+          <p class="ed-restricted-card__text ed-body-md">
+            Les services ne peuvent plus être modifiés sur une tâche terminée ou annulée.
+          </p>
+        </div>
+      }
+
+      @if (!t.services.length && !t.service_propositions.length) {
+        <div class="ed-card empty-box">
+          <span class="empty-box__icon" aria-hidden="true">
+            <i class="fa-solid fa-screwdriver-wrench"></i>
+          </span>
+          <p class="ed-body-md">Aucun service ajouté</p>
+        </div>
+      } @else {
+        @if (t.services.length) {
+          <div class="ed-card service-list-card">
+            @for (s of t.services; track s.id) {
+              <div class="service-list-row">
+                <span class="service-list-icon service-list-icon--approved" aria-hidden="true">
+                  <i class="fa-solid fa-circle-check"></i>
+                </span>
+                <div class="service-list-body">
+                  <p class="service-list-title">{{ s.name }}</p>
+                  @if (s.description) {
+                    <p class="service-list-subtitle">{{ s.description }}</p>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (t.service_propositions.length) {
+          <div class="services-propositions-block">
+            <h4 class="services-propositions-title ed-label">Propositions en attente</h4>
+            <div class="ed-card service-list-card">
+              @for (p of t.service_propositions; track p.id) {
+                <div class="service-list-row service-list-row--pending">
+                  <button
+                    type="button"
+                    class="service-details-icon-btn"
+                    (click)="f.openServicePropositionDetails(p)"
+                    aria-label="Détails de la proposition"
+                  >
+                    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                  </button>
+                  <span class="service-list-icon service-list-icon--pending" aria-hidden="true">
+                    <i class="fa-solid fa-lightbulb"></i>
+                  </span>
+                  <div class="service-list-body">
+                    <p class="service-list-title">{{ p.name }}</p>
+                    <p class="service-list-subtitle service-list-subtitle--pending">
+                      Proposé par <strong>{{ p.proposed_by_name || 'Inconnu' }}</strong>
+                      @if (p.created_at) {
+                        le {{ p.created_at }}
+                      }
+                    </p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+    }
+  </div>
+}

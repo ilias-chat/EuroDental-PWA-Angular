@@ -1,0 +1,674 @@
+﻿@use './app/features/tasks/list/task-card-list';
+@import 'theme/variables.scss';
+@import 'theme/theme-dark.scss';
+@import 'theme/theme-glass-overlay.scss';
+
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700&display=swap');
+
+@import '@ionic/angular/css/core.css';
+@import '@ionic/angular/css/normalize.css';
+@import '@ionic/angular/css/structure.css';
+@import '@ionic/angular/css/typography.css';
+@import '@ionic/angular/css/display.css';
+@import '@ionic/angular/css/padding.css';
+@import '@ionic/angular/css/float-elements.css';
+@import '@ionic/angular/css/text-alignment.css';
+@import '@ionic/angular/css/text-transformation.css';
+@import '@ionic/angular/css/flex-utils.css';
+
+// ─── Base ───────────────────────────────────────────────────────────────────
+html {
+  transition:
+    background-color 0.28s ease,
+    color 0.28s ease;
+}
+
+body {
+  font-family: var(--ion-font-family);
+  background: var(--ed-surface);
+  color: var(--ed-on-surface);
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 0.28s ease,
+    color 0.28s ease;
+}
+
+ion-app {
+  background: var(--ed-surface);
+}
+
+ion-content,
+ion-toolbar,
+ion-tab-bar {
+  transition:
+    --background 0.28s ease,
+    background 0.28s ease,
+    --color 0.28s ease,
+    color 0.28s ease;
+}
+
+body.ed-side-menu-open,
+body.ed-notifications-open {
+  overflow: hidden;
+}
+
+// ─── Typography ─────────────────────────────────────────────────────────────
+.ed-headline {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 36px;
+  letter-spacing: -0.02em;
+  color: var(--ed-on-surface);
+  margin: 0;
+}
+
+.ed-headline-md {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--ed-on-surface);
+}
+
+.ed-body-lg {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.ed-body-md {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--ed-on-surface-variant);
+}
+
+.ed-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ed-on-surface-variant);
+}
+
+.ed-type-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ed-primary);
+  margin: 0 0 4px;
+}
+
+// Card shell tokens — visual styles applied per-page via theme/host-surfaces.scss
+.ed-card {
+  padding: 20px;
+}
+
+.ed-card-tonal {
+  padding: 20px;
+}
+
+.ed-restricted-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  padding: 32px 24px;
+}
+
+.ed-restricted-card__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--ed-primary);
+  background: var(--ed-primary-alpha-08);
+  border: 1px solid var(--ed-primary-alpha-18);
+  box-shadow: var(--ed-soft-ui-shadow);
+}
+
+.ed-restricted-card__text {
+  margin: 0;
+  max-width: 300px;
+  color: var(--ed-on-surface-variant);
+  line-height: 1.5;
+}
+
+.empty-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 32px 20px;
+  color: var(--ed-on-surface-variant);
+}
+
+.empty-box__icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 0 14px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ed-primary-alpha-06);
+  border: 1px solid var(--ed-primary-alpha-12);
+  box-shadow: var(--ed-soft-ui-shadow);
+
+  i {
+    font-size: 28px;
+    line-height: 1;
+    color: var(--ed-outline);
+  }
+}
+
+.ed-page {
+  padding: var(--ed-container-padding);
+  padding-top: var(--ed-stack-md);
+  padding-bottom: calc(var(--ed-tab-bar-block-height) + var(--ed-stack-md));
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+// Page horizontal inset comes from .ed-page only (avoid double padding vs header)
+ion-content.ed-content-padded {
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+.has-app-header ion-content {
+  --offset-top: var(--app-header-height);
+}
+
+.ed-page-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ed-stack-lg);
+}
+
+// ─── Buttons ──────────────────────────────────────────────────────────────────
+.ed-btn-primary {
+  --background: var(--ed-gradient-cta);
+  --background-activated: var(--ed-gradient-cta-active);
+  --background-hover: var(--ed-gradient-cta-hover);
+  --border-radius: var(--ed-radius-full);
+  --box-shadow: var(--ed-shadow-cta);
+  --color: var(--ed-on-primary);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  height: 52px;
+}
+
+.ed-btn-secondary {
+  --border-radius: var(--ed-radius-full);
+  --border-width: 1.5px;
+  --border-color: var(--ed-outline-variant);
+  --color: var(--ed-on-surface);
+  --background: var(--ed-surface-container-lowest);
+  font-weight: 600;
+  text-transform: none;
+  height: 48px;
+}
+
+// ─── Soft-well inputs ─────────────────────────────────────────────────────────
+.ed-field {
+  margin-bottom: var(--ed-stack-md);
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: var(--ed-on-surface-variant);
+    margin-bottom: 8px;
+  }
+}
+
+.ed-soft-well {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--ed-surface-container-low);
+  border-radius: var(--ed-radius-md);
+  padding: 14px 16px;
+  box-shadow: inset 0 2px 4px var(--ed-on-surface-alpha-04);
+  border: 1.5px solid transparent;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus-within {
+    border-color: var(--ed-primary);
+    box-shadow:
+      inset 0 1px 2px var(--ed-on-surface-alpha-03),
+      0 0 0 3px var(--ed-primary-alpha-12);
+  }
+
+  i {
+    color: var(--ed-outline);
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  ion-input {
+    --padding-top: 0;
+    --padding-bottom: 0;
+    --padding-start: 0;
+    --padding-end: 0;
+    font-size: 16px;
+    text-transform: none;
+  }
+
+  ion-input::part(native) {
+    text-transform: none;
+  }
+}
+
+// ─── Chips & pills ────────────────────────────────────────────────────────────
+.ed-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--ed-radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--ed-surface-container-lowest);
+  color: var(--ed-primary);
+  border: 1px solid var(--ed-surface-container-highest);
+  box-shadow: var(--ed-soft-ui-shadow);
+}
+
+.ed-chip-primary {
+  background: var(--ed-primary-fixed);
+  color: var(--ed-primary);
+  box-shadow: none;
+}
+
+// Stock quantity + leave accept/refuse (shared pill)
+.stock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--ed-radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.stock-badge--high {
+  background: var(--ed-chip-stock-high-bg);
+  color: var(--ed-chip-stock-high-text);
+  border-color: var(--ed-chip-stock-high-border);
+}
+
+.stock-badge--medium {
+  background: var(--ed-chip-stock-mid-bg);
+  color: var(--ed-chip-stock-mid-text);
+  border-color: var(--ed-chip-stock-mid-border);
+}
+
+.stock-badge--low {
+  background: var(--ed-chip-stock-low-bg);
+  color: var(--ed-chip-stock-low-text);
+  border-color: var(--ed-chip-stock-low-border);
+}
+
+.leave-type-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: var(--ed-radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--ed-chip-info-bg);
+  color: var(--ed-chip-info-text);
+  border: 1px solid var(--ed-chip-info-border);
+}
+
+.leave-status-badge {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: var(--ed-radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.leave-status-badge--waiting {
+  background: var(--ed-chip-stock-mid-bg);
+  color: var(--ed-chip-stock-mid-text);
+  border-color: var(--ed-chip-stock-mid-border);
+}
+
+.leave-status-badge--on_leave {
+  background: var(--ed-leave-on-leave-bg);
+  color: var(--ed-leave-on-leave-text);
+  border-color: var(--ed-leave-on-leave-border);
+}
+
+.leave-status-badge--completed {
+  background: var(--ed-leave-completed-bg);
+  color: var(--ed-leave-completed-text);
+  border-color: var(--ed-leave-completed-border);
+}
+
+// Task status (stock-badge shell + semantic tints)
+.stock-badge.task-status-badge--info {
+  background: var(--ed-chip-info-bg);
+  color: var(--ed-chip-info-text);
+  border-color: var(--ed-chip-info-border);
+}
+
+.stock-badge.task-status-badge--route {
+  background: var(--ed-chip-warning-bg);
+  color: var(--ed-chip-warning-text);
+  border-color: var(--ed-chip-warning-border);
+}
+
+.stock-badge.task-status-badge--cancelled {
+  background: var(--ed-chip-purple-bg);
+  color: var(--ed-chip-purple-text);
+  border-color: var(--ed-chip-purple-border);
+}
+
+.leave-icon-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: var(--ed-radius-full);
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, background 0.15s ease;
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  &--edit {
+    background: var(--ed-primary-alpha-10);
+    color: var(--ed-primary);
+
+    &:active {
+      background: var(--ed-primary-fixed);
+    }
+  }
+
+  &--cancel {
+    background: rgba(249, 115, 22, 0.12);
+    color: var(--ed-action-warning);
+  }
+
+  &--delete {
+    background: var(--ed-error-muted-container);
+    color: var(--ed-error);
+  }
+}
+
+// ─── Ionic overrides ──────────────────────────────────────────────────────────
+ion-toolbar {
+  --background: var(--ed-surface-container-lowest);
+  --border-width: 0;
+  --padding-top: 4px;
+  --padding-bottom: 4px;
+}
+
+ion-header.app-header ion-toolbar.app-header-toolbar {
+  --padding-top: 0;
+  --padding-bottom: 0;
+}
+
+// Single safe-area inset on header content (avoid Ionic toolbar host + inner double padding).
+ion-header.app-header ion-toolbar.app-header-toolbar:first-of-type {
+  padding-top: 0;
+}
+
+ion-header.ion-no-border::after {
+  display: none;
+}
+
+ion-content {
+  --background: var(--ed-surface);
+}
+
+// Prevent the scroll backdrop from intercepting taps (Ionic shadow DOM)
+ion-content::part(scroll) {
+  pointer-events: auto;
+}
+
+ion-content::part(background) {
+  background: var(--ed-surface);
+}
+
+// Tab bar shell styles live in tabs.page.scss (:host ::ng-deep)
+
+ion-segment {
+  --background: var(--ed-surface-container);
+  border-radius: var(--ed-radius-full);
+  padding: 4px;
+  margin: 8px var(--ed-container-padding) 0;
+}
+
+ion-segment-button {
+  --indicator-color: var(--ed-on-primary);
+  --color: var(--ed-on-surface-variant);
+  --color-checked: var(--ed-primary);
+  --border-radius: var(--ed-radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  min-height: 36px;
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+
+ion-segment-button::part(indicator-background) {
+  box-shadow: var(--ed-soft-ui-shadow);
+}
+
+ion-back-button {
+  --color: var(--ed-primary);
+  font-weight: 600;
+}
+
+ion-refresher {
+  z-index: 1;
+}
+
+
+@import './app/features/tasks/detail/styles/task-detail-modals.global.scss';
+@import './app/features/tasks/detail/styles/modal-footer.global.scss';
+@import './app/features/tasks/shared/create-task-modal/styles/create-task-modal.global.scss';
+@import './app/features/suivi/styles/suivi.global.scss';
+@import './app/features/leave-requests/styles/leave-request-modals.global.scss';
+@import './app/features/leave-requests/styles/leave-detail-modal.global.scss';
+@import './app/features/leave-requests/styles/leave-confirm-modal.global.scss';
+@import './app/features/deplacement/detail/styles/deplacement-detail-modals.global.scss';
+@import './app/features/deplacement/styles/past-deployments-modal.global.scss';
+@import './app/features/tickets/styles/ticket-modals.global.scss';
+@import './app/shared/components/notifications-panel/notifications-panel.global.scss';
+
+
+ion-modal.past-tasks-modal {
+  --height: 95vh;
+
+  &::part(backdrop) {
+    background: var(--ed-scrim);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  &::part(content) {
+    position: absolute;
+    bottom: 0;
+    top: auto;
+    left: 0;
+    right: 0;
+    margin: 0;
+    height: 95vh;
+    max-height: 95vh;
+    overflow: hidden;
+    border-radius: var(--ed-radius-xl) var(--ed-radius-xl) 0 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background: var(--ed-glass-panel);
+    backdrop-filter: var(--ed-glass-blur);
+    -webkit-backdrop-filter: var(--ed-glass-blur);
+    border-top: 1px solid var(--ed-glass-border);
+    box-shadow: var(--ed-glass-highlight, inset 0 1px 0 rgba(255, 255, 255, 0.35)), var(--ed-shadow-fab);
+  }
+
+  .ion-page,
+  .ion-delegate-host {
+    height: 95vh;
+    max-height: 95vh;
+  }
+
+  .services-picker-shell.past-tasks-shell {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 95vh !important;
+    max-height: 95vh !important;
+    overflow: hidden !important;
+  }
+
+  .services-picker-handle {
+    flex-shrink: 0;
+    width: 48px;
+    height: 5px;
+    margin: 10px auto 6px;
+    border-radius: var(--ed-radius-full);
+    background: var(--ed-primary);
+    opacity: 0.55;
+  }
+
+  .services-picker-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 56px;
+    padding: 12px var(--ed-container-padding) 8px;
+    background: transparent;
+    border-bottom: none;
+  }
+
+  .services-picker-title {
+    margin: 0;
+    padding: 0;
+    flex: 1;
+    min-width: 0;
+    font-family: 'Plus Jakarta Sans', 'Be Vietnam Pro', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.25;
+    text-align: left;
+    color: var(--ed-on-surface);
+  }
+
+  .services-picker-close {
+    position: static;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    border-radius: var(--ed-radius-full);
+    background: var(--ed-glass-surface-light);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--ed-primary);
+    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--ed-soft-ui-shadow);
+    transition: transform 0.15s ease, background 0.15s ease;
+
+    &:active {
+      transform: scale(0.96);
+      background: var(--ed-glass-surface-medium);
+    }
+  }
+
+  .past-tasks-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px var(--ed-container-padding)
+      calc(24px + env(safe-area-inset-bottom, 0px));
+    background: transparent;
+
+    @include task-card-list.task-card-list-styles;
+
+    .task-card-helpers {
+      flex-shrink: 0;
+      justify-content: flex-end;
+    }
+
+    .team-stack app-user-avatar .avatar {
+      width: 40px;
+      height: 40px;
+    }
+
+    .team-overflow {
+      width: 40px;
+      height: 40px;
+      font-size: 11px;
+    }
+  }
+
+  .past-tasks-empty {
+    text-align: center;
+    padding: 56px 24px;
+  }
+
+  .past-tasks-empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: var(--ed-surface-container-lowest);
+    border: 1px solid var(--ed-surface-container-highest);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ed-outline);
+    font-size: 28px;
+    box-shadow: var(--ed-soft-ui-shadow);
+  }
+
+  .past-tasks-empty h3 {
+    margin: 0 0 8px;
+  }
+
+  .past-tasks-empty p {
+    margin: 0;
+    color: var(--ed-on-surface-variant);
+  }
+}

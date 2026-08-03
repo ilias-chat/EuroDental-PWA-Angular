@@ -1,0 +1,214 @@
+<ion-content [fullscreen]="true" class="tickets-page ed-content-padded">
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="ed-page ed-page-stack tickets-page-inner">
+    <header class="tickets-page-header">
+      <h1 class="ed-headline">Tickets</h1>
+    </header>
+
+    @if (error()) {
+      <div class="error-banner" role="alert">
+        <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    <div class="ticket-status-filters" role="tablist" aria-label="Filtrer par statut">
+      @for (filter of statusFilters; track filter.value) {
+        <button
+          type="button"
+          class="ticket-status-filter"
+          [class.ticket-status-filter--active]="statusFilter() === filter.value"
+          (click)="setStatusFilter(filter.value)"
+        >
+          {{ filter.label }}
+        </button>
+      }
+    </div>
+
+    @if (loading()) {
+      <div class="ticket-list" aria-busy="true" aria-label="Chargement des tickets">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="ed-card ticket-card ticket-card--skeleton" aria-hidden="true">
+            <div class="ticket-skeleton__top">
+              <div class="ticket-skeleton__line ticket-skeleton__line--title"></div>
+              <div class="ticket-skeleton__badge"></div>
+            </div>
+            <div class="ticket-skeleton__line ticket-skeleton__line--author"></div>
+            <div class="ticket-skeleton__line ticket-skeleton__line--meta"></div>
+          </div>
+        }
+      </div>
+    } @else if (!tickets().length) {
+      <div class="ed-card center-state tickets-empty">
+        <div class="tickets-empty-icon" aria-hidden="true">
+          <i class="fa-solid fa-ticket"></i>
+        </div>
+        <h2 class="ed-headline-md">Aucun ticket</h2>
+        <p class="ed-body-md">Vous n'avez aucun ticket pour ce filtre.</p>
+        @if (canCreate()) {
+          <button type="button" class="ticket-primary-btn" (click)="openCreateModal()">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            Créer un ticket
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="ticket-list">
+        @for (ticket of tickets(); track ticket.id) {
+          <article class="ed-card ticket-card" (click)="openTicket(ticket)">
+            <div class="ticket-card__top">
+              <h3 class="ticket-card__title">{{ ticket.subject }}</h3>
+              <app-ticket-status-badge [status]="ticket.status" [label]="ticket.status_label" />
+            </div>
+            @if (hasManage() && ticket.user_name) {
+              <p class="ticket-card__author ed-body-md">{{ ticket.user_name }}</p>
+            }
+            <p class="ticket-card__meta ed-body-md">
+              {{ ticket.replies_count }} réponse{{ ticket.replies_count > 1 ? 's' : '' }} ·
+              {{ ticket.updated_at_label }}
+            </p>
+          </article>
+        }
+      </div>
+
+      @if (pagination(); as p) {
+        @if (p.last_page > 1) {
+          <nav class="ticket-pagination" aria-label="Pagination">
+            <span class="ticket-pagination__label ed-body-md">
+              Page {{ p.current_page }} sur {{ p.last_page }}
+            </span>
+            <div class="ticket-pagination__actions">
+              <button
+                type="button"
+                class="ticket-pagination__btn"
+                [disabled]="p.current_page <= 1"
+                (click)="goToPage(p.current_page - 1)"
+              >
+                Précédent
+              </button>
+              <button
+                type="button"
+                class="ticket-pagination__btn ticket-pagination__btn--primary"
+                [disabled]="!p.has_more"
+                (click)="goToPage(p.current_page + 1)"
+              >
+                Suivant
+              </button>
+            </div>
+          </nav>
+        }
+      }
+    }
+  </div>
+
+  @if (canCreate()) {
+    <button
+      type="button"
+      class="ticket-create-fab"
+      (click)="openCreateModal()"
+      aria-label="Nouveau ticket"
+    >
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
+    </button>
+  }
+</ion-content>
+
+<ion-modal
+  class="ticket-form-modal"
+  [isOpen]="showCreateModal()"
+  (didDismiss)="closeCreateModal()"
+>
+  <ng-template>
+    <div class="services-picker-shell">
+      <div class="services-picker-handle" aria-hidden="true"></div>
+      <header class="services-picker-header">
+        <h2 class="services-picker-title">Nouveau ticket</h2>
+        <button
+          type="button"
+          class="services-picker-close"
+          (click)="closeCreateModal()"
+          aria-label="Fermer"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="services-picker-scroll">
+        <p class="ticket-form-intro ed-body-md">Décrivez votre demande ou problème.</p>
+        <div class="payment-modal-form">
+          <div class="payment-modal-field">
+            <label class="payment-modal-label ed-label" for="ticket-subject">Sujet</label>
+            <input
+              id="ticket-subject"
+              class="payment-modal-control"
+              [ngModel]="createForm().subject"
+              (ngModelChange)="updateCreateField('subject', $event)"
+              placeholder="Résumé du problème"
+            />
+          </div>
+          <div class="payment-modal-field">
+            <label class="payment-modal-label ed-label" for="ticket-body">Message</label>
+            <textarea
+              id="ticket-body"
+              class="payment-modal-control ticket-textarea"
+              rows="5"
+              [ngModel]="createForm().body"
+              (ngModelChange)="updateCreateField('body', $event)"
+              placeholder="Décrivez le problème…"
+            ></textarea>
+          </div>
+          <div class="payment-modal-field">
+            <label class="payment-modal-label ed-label" for="ticket-attachment">Pièce jointe</label>
+            <div
+              class="ticket-attachment-picker"
+              [class.ticket-attachment-picker--filled]="!!createAttachmentPreview()"
+            >
+              <input
+                id="ticket-attachment"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                (change)="onCreateAttachmentChange($event)"
+              />
+              @if (createAttachmentPreview(); as preview) {
+                <div class="ticket-attachment-picker__preview">
+                  <img [src]="preview" alt="Aperçu" />
+                  <button
+                    type="button"
+                    class="ticket-attachment-picker__clear"
+                    (click)="clearCreateAttachment()"
+                    aria-label="Supprimer l'image"
+                  >
+                    <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                  </button>
+                </div>
+              } @else {
+                <div class="ticket-attachment-picker__placeholder">
+                  <i class="fa-solid fa-image" aria-hidden="true"></i>
+                  <span>JPEG, PNG, WebP ou GIF · max 5 Mo</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="services-picker-footer">
+        <button
+          type="button"
+          class="payment-modal-save"
+          [disabled]="!createForm().subject.trim() || !createForm().body.trim() || creating()"
+          (click)="submitCreate()"
+        >
+          @if (creating()) {
+            <ion-spinner name="crescent" />
+          } @else {
+            Créer le ticket
+          }
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

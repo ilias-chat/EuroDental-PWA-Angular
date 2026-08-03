@@ -1,0 +1,93 @@
+﻿@use '../../../theme/elevation';
+
+:host ::ng-deep {
+  ion-tab-bar.app-tab-bar {
+    --background: var(--ed-surface-container);
+    --border: none;
+    border-top: 1px solid var(--ed-surface-container-highest);
+    border-top-left-radius: var(--ed-tab-bar-radius);
+    border-top-right-radius: var(--ed-tab-bar-radius);
+    box-shadow: var(--ed-tab-bar-shadow);
+    padding: var(--ed-tab-bar-padding-top) var(--ed-container-padding)
+      calc(var(--ed-tab-bar-padding-bottom) + env(safe-area-inset-bottom, 0px));
+    height: auto;
+    min-height: var(--ed-tab-bar-block-height);
+  }
+
+  ion-tab-bar.app-tab-bar ion-tab-button {
+    --color: var(--ed-on-surface-variant);
+    --color-selected: var(--ed-tab-active-text);
+    --padding-top: 2px;
+    --padding-bottom: 2px;
+    --padding-start: 10px;
+    --padding-end: 10px;
+    font-family: var(--ion-font-family);
+    font-size: var(--ed-label-font-size);
+    font-weight: 600;
+    letter-spacing: var(--ed-label-letter-spacing);
+    text-transform: none;
+    max-width: none;
+    min-height: var(--ed-tab-bar-inner-height);
+    border-radius: var(--ed-radius-md);
+    transition: transform 0.15s ease, background 0.15s ease;
+
+    &::part(native) {
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    ion-icon {
+      font-size: 20px;
+      margin: 0;
+    }
+
+    ion-label {
+      font-size: var(--ed-label-font-size);
+      line-height: var(--ed-label-line-height);
+      font-weight: 600;
+      letter-spacing: var(--ed-label-letter-spacing);
+      margin-top: 0;
+    }
+  }
+
+  ion-tab-bar.app-tab-bar ion-tab-button.tab-selected {
+    background: var(--ed-tab-active-bg);
+    border: 1px solid var(--ed-tab-active-border);
+    box-shadow: elevation.$ed-soft-ui-shadow;
+    color: var(--ed-tab-active-text);
+
+    ion-icon,
+    ion-label {
+      color: var(--ed-tab-active-text);
+    }
+  }
+}
+
+.tabs-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--ed-surface);
+  position: relative;
+  overflow: hidden;
+}
+
+// ion-tabs defaults to position:absolute; inset:0 — overlaps the external header layer
+:host ::ng-deep ion-tabs.tabs-with-header {
+  position: relative !important;
+  inset: auto !important;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  height: auto !important;
+}
+
+:host ::ng-deep ion-tabs.tabs-with-header .tabs-inner {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+:host ::ng-deep ion-tabs.tabs-with-header .tabs-inner ion-router-outlet {
+  pointer-events: auto;
+}

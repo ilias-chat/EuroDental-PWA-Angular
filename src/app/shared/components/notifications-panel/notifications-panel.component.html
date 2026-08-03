@@ -1,0 +1,74 @@
+@if (rendered()) {
+  <div
+    class="notif-panel-root"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Notifications"
+  >
+    <button
+      type="button"
+      class="notif-panel-backdrop"
+      [class.notif-panel-backdrop--visible]="visible()"
+      aria-label="Fermer les notifications"
+      (click)="dismiss()"
+    ></button>
+
+    <div
+      class="notif-panel-sheet services-picker-shell notif-panel-shell"
+      [class.notif-panel-sheet--visible]="visible()"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="services-picker-handle" aria-hidden="true"></div>
+
+      <header class="services-picker-header">
+        <h2 class="services-picker-title">Notifications</h2>
+        <button type="button" class="services-picker-close" (click)="dismiss()" aria-label="Fermer">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div
+        class="services-picker-scroll notif-panel-scroll"
+        [class.notif-panel-scroll--centered]="notifications.loading() || notifications.items().length === 0"
+      >
+        @if (notifications.loading()) {
+          <div class="notif-panel-state ed-card ed-card-tonal">
+            <ion-spinner name="crescent" color="primary" aria-label="Chargement" />
+            <p class="ed-body-md">Chargement des notifications…</p>
+          </div>
+        } @else if (notifications.items().length === 0) {
+          <div class="ed-card empty-box notif-panel-empty">
+            <span class="empty-box__icon" aria-hidden="true">
+              <i class="fa-solid fa-bell-slash"></i>
+            </span>
+            <h3 class="ed-headline-md">Aucune notification</h3>
+            <p class="ed-body-md">Vous êtes à jour.</p>
+          </div>
+        } @else {
+          <ul class="notif-panel-list">
+            @for (item of notifications.items(); track item.id) {
+              <li>
+                <article
+                  class="ed-card notif-card"
+                  [class.notif-card--unread]="!item.is_read"
+                >
+                  <div class="notif-card-top">
+                    <h3 class="notif-card-title">{{ item.title }}</h3>
+                    <time
+                      class="notif-card-time ed-label"
+                      [class.notif-card-time--unread]="!item.is_read"
+                      [attr.datetime]="item.created_at"
+                    >
+                      {{ formatDate(item.created_at) }}
+                    </time>
+                  </div>
+                  <p class="notif-card-body ed-body-md">{{ item.body }}</p>
+                </article>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+  </div>
+}

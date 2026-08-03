@@ -1,0 +1,119 @@
+<app-app-header [showBack]="true" [backHref]="f.ticketsListBackHref()" />
+
+<ion-content class="ticket-detail-content ed-content-padded">
+  @if (f.loading()) {
+    <div class="ticket-detail-loading">
+      <ion-spinner name="crescent" color="primary" />
+    </div>
+  } @else if (f.ticket(); as t) {
+    <div
+      class="ed-page ed-page-stack ticket-detail-page"
+      [class.ticket-detail-page--with-fab]="t.can_reply"
+    >
+      <section class="ed-card ticket-detail-card">
+        <header class="ticket-detail-card__header">
+          <div class="ticket-detail-card__intro">
+            <h1 class="ticket-detail-card__title">{{ t.subject }}</h1>
+            <p class="ed-body-md ticket-detail-card__meta">
+              <span class="ticket-detail-card__author">{{ t.user_name }}</span>
+              · Créé le {{ t.created_at_label }}
+            </p>
+          </div>
+          <app-ticket-status-badge [status]="t.status" [label]="t.status_label" />
+        </header>
+
+        <article class="ticket-message ticket-message--initial">
+          <div class="ticket-message__avatar" aria-hidden="true">
+            {{ ticketUserInitials(t.user_name) }}
+          </div>
+          <div class="ticket-message__body">
+            <p class="ticket-message__meta ed-body-md">
+              <strong>{{ t.user_name }}</strong>
+              <span>· {{ t.created_at_label }}</span>
+            </p>
+            <p class="ticket-message__text">{{ t.body }}</p>
+            @if (t.attachments.length) {
+              <div class="ticket-attachments">
+                @for (att of t.attachments; track att.id) {
+                  <a class="ticket-attachment-thumb" [href]="att.url" target="_blank" rel="noopener">
+                    <img [src]="att.url" alt="Pièce jointe" />
+                  </a>
+                }
+              </div>
+            }
+          </div>
+        </article>
+
+        <div class="ticket-replies-heading">
+          <i class="fa-solid fa-comments" aria-hidden="true"></i>
+          Réponses ({{ t.replies_count }})
+        </div>
+
+        @if (!t.replies.length) {
+          <p class="ticket-replies-empty ed-body-md">Aucune réponse pour le moment.</p>
+        } @else {
+          <div class="ticket-replies-list">
+            @for (reply of t.replies; track reply.id) {
+              <article
+                class="ticket-message"
+                [class.ticket-message--author]="reply.is_creator"
+              >
+                <div class="ticket-message__avatar" aria-hidden="true">
+                  {{ ticketUserInitials(reply.user_name) }}
+                </div>
+                <div class="ticket-message__body">
+                  <p class="ticket-message__meta ed-body-md">
+                    <strong>{{ reply.user_name }}</strong>
+                    @if (reply.is_creator) {
+                      <span class="ticket-author-pill">Auteur</span>
+                    }
+                    <span>· {{ reply.created_at_label }}</span>
+                  </p>
+                  <p class="ticket-message__text">{{ reply.body }}</p>
+                  @if (reply.attachments.length) {
+                    <div class="ticket-attachments">
+                      @for (att of reply.attachments; track att.id) {
+                        <a class="ticket-attachment-thumb" [href]="att.url" target="_blank" rel="noopener">
+                          <img [src]="att.url" alt="Pièce jointe" />
+                        </a>
+                      }
+                    </div>
+                  }
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+
+      @if (t.can_resolve) {
+        <section class="ticket-detail-actions ed-card">
+          <p class="ed-body-md ticket-detail-actions__hint">
+            Ajoutez une réponse pour poursuivre la conversation.
+          </p>
+          <div class="ticket-detail-actions__buttons">
+            <button type="button" class="ticket-outline-btn" (click)="f.openResolveConfirm()">
+              <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+              Marquer comme résolu
+            </button>
+          </div>
+        </section>
+      }
+    </div>
+  }
+</ion-content>
+
+@if (f.ticket(); as t) {
+  @if (t.can_reply) {
+    <button
+      type="button"
+      class="ticket-reply-fab"
+      (click)="f.openReplyModal()"
+      aria-label="Répondre"
+    >
+      <i class="fa-solid fa-reply" aria-hidden="true"></i>
+    </button>
+  }
+}
+
+<app-ticket-detail-modals />

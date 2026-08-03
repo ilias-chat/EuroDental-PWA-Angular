@@ -1,0 +1,144 @@
+@if (f.deployment(); as dep) {
+  <div class="ed-page ed-page-stack tab-panel">
+    @if (!dep.is_responsible) {
+      <section class="ed-card ed-restricted-card">
+        <span class="ed-restricted-card__icon" aria-hidden="true">
+          <i class="fa-solid fa-user-shield"></i>
+        </span>
+        <p class="ed-restricted-card__text ed-body-md">
+          Seul le responsable du déplacement peut gérer la timeline.
+        </p>
+      </section>
+    } @else {
+      @if (f.timelineTeamMembers().length) {
+        <section class="ed-card team-filter-card">
+          <div class="team-filter-row">
+            <button
+              type="button"
+              class="team-filter-tout"
+              [class.team-filter-tout--active]="f.isTimelineFilterActive(null)"
+              (click)="f.setTimelineFilter(null)"
+            >
+              Tout
+            </button>
+            @for (member of f.timelineTeamMembers(); track member.id) {
+              <button
+                type="button"
+                class="team-filter-avatar"
+                [class.team-filter-avatar--active]="f.isTimelineFilterActive(member.id)"
+                [attr.aria-label]="'Filtrer par ' + member.name"
+                (click)="f.setTimelineFilter(member.id)"
+              >
+                <app-user-avatar
+                  [name]="member.name"
+                  [image]="member.image"
+                  [highlight]="f.isTimelineFilterActive(member.id)"
+                  size="sm"
+                />
+              </button>
+            }
+          </div>
+        </section>
+      }
+
+      <section class="ed-card timeline-card">
+        <div class="timeline-card-header">
+          <div class="timeline-card-title">
+            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+            <span class="ed-label">Chronologie du déplacement</span>
+          </div>
+          @if (f.filteredDeploymentEvents().length > 3) {
+            <button
+              type="button"
+              class="timeline-more-link"
+              (click)="f.showAllEvents.set(!f.showAllEvents())"
+            >
+              {{ f.showAllEvents() ? 'Voir moins' : 'Voir plus' }}
+            </button>
+          }
+        </div>
+
+        <div class="timeline-list">
+          <div class="timeline-item">
+            <div class="timeline-icon timeline-icon--scheduled">
+              <i class="fa-solid fa-calendar-day" aria-hidden="true"></i>
+            </div>
+            <div class="timeline-body">
+              <span class="timeline-event-title">Déplacement programmé</span>
+              <span class="timeline-event-time">{{ f.formatTimelineDate(dep.deployment_date ?? '') }}</span>
+            </div>
+          </div>
+
+          @if (f.filteredDeploymentEvents().length === 0) {
+            <p class="timeline-empty ed-body-md">Aucune activité pour ce filtre.</p>
+          }
+          @for (ev of f.visibleDeploymentEvents(); track ev.id) {
+            @let meta = f.deploymentEventMeta(ev);
+            <div class="timeline-item">
+              <div class="timeline-icon" [style.background-color]="meta.color">
+                <i [class]="meta.icon" aria-hidden="true"></i>
+              </div>
+              <div class="timeline-body">
+                <span class="timeline-event-title">{{ meta.label }}</span>
+                <span class="timeline-event-time">{{ f.deploymentEventTimeLabel(ev) }}</span>
+                @if (ev.user_name) {
+                  <div class="timeline-author-pill">
+                    <span class="timeline-author-avatar">{{ f.userInitials(ev.user_name) }}</span>
+                    <span class="timeline-author-label">Par: {{ ev.user_name }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      @if (!f.hasDeploymentEnded()) {
+        <section class="ed-card actions-card">
+          <h3 class="section-label ed-label">Actions</h3>
+          <div class="action-grid">
+            @if (!f.hasDeploymentStarted()) {
+              <button
+                type="button"
+                class="progression-action progression-action--primary"
+                [disabled]="f.submittingDeploymentEvent()"
+                (click)="f.submitDeploymentEvent('start')"
+              >
+                @if (f.submittingDeploymentEvent()) {
+                  <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+                  <span>Démarrage…</span>
+                } @else {
+                  <i class="fa-solid fa-play" aria-hidden="true"></i>
+                  <span>Début du déploiement</span>
+                }
+              </button>
+            } @else {
+              <button
+                type="button"
+                class="progression-action progression-action--primary"
+                (click)="f.openJoinMemberModal()"
+              >
+                <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                <span>Un membre a rejoint</span>
+              </button>
+              <button
+                type="button"
+                class="progression-action progression-action--danger"
+                [disabled]="f.submittingDeploymentEvent()"
+                (click)="f.openFinishDeploymentConfirm()"
+              >
+                @if (f.submittingDeploymentEvent()) {
+                  <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+                  <span>Finalisation…</span>
+                } @else {
+                  <i class="fa-solid fa-stop" aria-hidden="true"></i>
+                  <span>Fin du déploiement</span>
+                }
+              </button>
+            }
+          </div>
+        </section>
+      }
+    }
+  </div>
+}

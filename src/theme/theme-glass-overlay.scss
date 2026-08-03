@@ -1,0 +1,37 @@
+// Glass shells: menu panel + modal ::part(content) only (not cards inside modals).
+
+@mixin ed-glass-shell {
+  background: var(--ed-glass-panel);
+  backdrop-filter: var(--ed-glass-blur);
+  -webkit-backdrop-filter: var(--ed-glass-blur);
+  box-shadow: var(--ed-glass-highlight), var(--ed-shadow-fab);
+}
+
+[data-ed-theme='dark'] {
+  .side-menu-panel {
+    @include ed-glass-shell;
+  }
+
+  .side-menu-item {
+    background: var(--ed-glass-surface-light);
+    backdrop-filter: var(--ed-glass-blur-sm);
+    -webkit-backdrop-filter: var(--ed-glass-blur-sm);
+    border: 1px solid var(--ed-glass-border);
+    box-shadow: var(--ed-glass-highlight), var(--ed-soft-ui-shadow);
+  }
+
+  .side-menu-close {
+    background: var(--ed-glass-surface-light);
+    backdrop-filter: var(--ed-glass-blur-sm);
+    -webkit-backdrop-filter: var(--ed-glass-blur-sm);
+    box-shadow: var(--ed-glass-highlight), var(--ed-soft-ui-shadow);
+  }
+
+  .side-menu-logout {
+    background: color-mix(in srgb, var(--ed-chip-error-bg) 55%, transparent);
+    backdrop-filter: var(--ed-glass-blur-sm);
+    -webkit-backdrop-filter: var(--ed-glass-blur-sm);
+    border-color: color-mix(in srgb, var(--ed-chip-error-border) 70%, transparent);
+    box-shadow: var(--ed-glass-highlight), var(--ed-soft-ui-shadow);
+  }
+}

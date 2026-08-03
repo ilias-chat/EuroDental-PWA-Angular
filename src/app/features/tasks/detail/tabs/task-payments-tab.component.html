@@ -1,0 +1,88 @@
+@if (f.task(); as t) {
+  <div class="ed-page ed-page-stack tab-panel payments-tab">
+    @if (!t.is_main_technician) {
+      <div class="ed-card ed-restricted-card">
+        <span class="ed-restricted-card__icon" aria-hidden="true">
+          <i class="fa-solid fa-user-shield"></i>
+        </span>
+        <p class="ed-restricted-card__text ed-body-md">
+          Seul le technicien principal de la tâche peut ajouter ou gérer les paiements.
+        </p>
+      </div>
+    } @else {
+      @if (t.is_paid) {
+        <section class="ed-card payment-tab-card payment-tab-card--client payment-tab-card--paid">
+          <span class="info-pill success paid-chip payment-tab-badge" aria-label="Payé">
+            <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+            Payé
+          </span>
+          <div class="payment-tab-header payment-tab-header--stacked">
+            <h4 class="payment-tab-title">Paiement</h4>
+            @if (t.amount_paid != null && t.amount_paid !== undefined) {
+              <p class="payment-tab-amount">{{ f.formatPaymentAmount(t.amount_paid) }} DH</p>
+            } @else {
+              <p class="payment-tab-hint payment-tab-hint--row">Cette tâche est réglée.</p>
+            }
+          </div>
+        </section>
+      } @else if (f.canShowClientPaymentSection(t)) {
+        <section class="ed-card payment-tab-card payment-tab-card--client">
+          <span class="info-pill unpaid-chip payment-tab-badge" aria-label="Non payé">
+            <i class="fa-solid fa-money-bill" aria-hidden="true"></i>
+            Non payé
+          </span>
+          <div class="payment-tab-header payment-tab-header--stacked">
+            <h4 class="payment-tab-title">Paiement</h4>
+            <p class="payment-tab-hint payment-tab-hint--row">Cette tâche n'est pas encore réglée.</p>
+            <button type="button" class="payment-tab-btn" (click)="f.openPaymentModal()">
+              <i class="fa-solid fa-hand-holding-dollar" aria-hidden="true"></i>
+              <span>Payé</span>
+            </button>
+          </div>
+        </section>
+      }
+
+      <section class="ed-card payment-tab-card">
+        <div class="payment-tab-header payment-tab-header--stacked">
+          <h4 class="payment-tab-title">Paiement à remettre à l'administration</h4>
+
+          @if (t.admin_delivery_amount == null || t.admin_delivery_amount === undefined) {
+            <p class="payment-tab-hint payment-tab-hint--row">
+              Enregistrer un montant à remettre à l'administration (ex. ancienne commande).
+            </p>
+          }
+
+          @if (f.canAddAdminDeliveryPayment(t)) {
+            <button type="button" class="payment-tab-btn" (click)="f.openAdminDeliveryPaymentModal()">
+              <i class="fa-solid fa-building-columns" aria-hidden="true"></i>
+              <span>Ajouter un paiement à remettre</span>
+            </button>
+          }
+        </div>
+        @if (f.hasAdminDeliveryDisplay(t)) {
+          <div class="payment-tab-admin-body">
+            @if (t.admin_delivery_amount != null && t.admin_delivery_amount !== undefined) {
+              <div class="payment-tab-admin-row">
+                <span class="info-pill admin-amount-chip">
+                  <i class="fa-solid fa-hand-holding-dollar" aria-hidden="true"></i>
+                  {{ f.formatPaymentAmount(t.admin_delivery_amount) }} DH
+                </span>
+                @if (t.admin_delivery_task_id) {
+                  <span class="payment-delivery-task-ref">
+                    Tâche de livraison créée (#{{ t.admin_delivery_task_id }})
+                  </span>
+                }
+              </div>
+            }
+            @if (f.adminDeliveryReceiverName(t); as receiverName) {
+              <p class="payment-receiver-line">
+                <i class="fa-solid fa-user-check" aria-hidden="true"></i>
+                Remis à : {{ receiverName }}
+              </p>
+            }
+          </div>
+        }
+      </section>
+    }
+  </div>
+}

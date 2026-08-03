@@ -1,0 +1,79 @@
+@if (f.deployment(); as dep) {
+  <div class="ed-page ed-page-stack tab-panel">
+    @if (!dep.is_responsible) {
+      <section class="ed-card ed-restricted-card">
+        <span class="ed-restricted-card__icon" aria-hidden="true">
+          <i class="fa-solid fa-user-shield"></i>
+        </span>
+        <p class="ed-restricted-card__text ed-body-md">
+          Seul le responsable du déplacement peut gérer les dépenses.
+        </p>
+      </section>
+    } @else if (!dep.expenses?.length) {
+      <div class="ed-card empty-box">
+        <span class="empty-box__icon" aria-hidden="true">
+          <i class="fa-solid fa-receipt"></i>
+        </span>
+        <p class="ed-body-md">Aucune dépense enregistrée</p>
+        @if (!f.hasDeploymentEnded()) {
+          <button type="button" class="empty-box__action" (click)="f.openAddExpense()">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            <span>Ajouter une dépense</span>
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="deplacement-expenses-tab">
+        <div class="deplacement-expense-list">
+          @for (expense of dep.expenses; track expense.id) {
+            <article class="deplacement-expense-card ed-card">
+              <div class="deplacement-expense-card__body">
+                <p class="deplacement-expense-card__title">
+                  {{ expense.category || 'Sans catégorie' }}
+                </p>
+                <p class="deplacement-expense-card__meta ed-body-md">
+                  {{ formatDeploymentDate(expense.expense_date) }}
+                  @if (expense.description) {
+                    · {{ expense.description }}
+                  }
+                </p>
+              </div>
+              <footer class="deplacement-expense-card__footer">
+                <span class="deplacement-expense-card__amount">{{
+                  formatExpenseAmount(expense.amount)
+                }}</span>
+                @if (!f.hasDeploymentEnded()) {
+                  <div class="deplacement-expense-card__actions">
+                    <button
+                      type="button"
+                      class="deplacement-icon-btn"
+                      (click)="f.openEditExpense(expense)"
+                      aria-label="Modifier"
+                    >
+                      <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="deplacement-icon-btn deplacement-icon-btn--danger"
+                      (click)="f.requestDeleteExpense(expense)"
+                      aria-label="Supprimer"
+                    >
+                      <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                }
+              </footer>
+            </article>
+          }
+        </div>
+
+        <section class="deplacement-expenses-summary ed-card" aria-live="polite">
+          <span class="deplacement-expenses-summary__total">
+            Total
+            <strong>{{ formatExpenseAmount(expensesTotal(dep.expenses)) }}</strong>
+          </span>
+        </section>
+      </div>
+    }
+  </div>
+}

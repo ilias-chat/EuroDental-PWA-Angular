@@ -1,0 +1,255 @@
+﻿@use '../../../../theme/host-surfaces';
+
+:host {
+  display: block;
+  height: 100%;
+
+  --login-bg-top: #eef4ff;
+  --login-bg-bottom: #ffffff;
+  --login-aurora-opacity: 0.72;
+  --login-fade-top: transparent;
+  --login-fade-mid: rgba(238, 244, 255, 0.28);
+  --login-mesh-ink: rgba(255, 255, 255, 0.78);
+  --login-mesh-fade-stop: 82%;
+  --login-bloom: rgba(190, 214, 255, 0.62);
+  --login-bloom-soft: rgba(216, 226, 255, 0.38);
+  --login-bloom-accent: rgba(44, 190, 232, 0.24);
+  --login-bloom-blend: normal;
+  --login-bloom-opacity: 1;
+}
+
+:host-context([data-ed-theme='dark']) {
+  --login-bg-top: #000000;
+  --login-bg-bottom: #000000;
+  --login-aurora-opacity: 1;
+  --login-fade-top: rgba(2, 10, 32, 0);
+  --login-fade-mid: rgba(2, 10, 32, 0.12);
+  --login-mesh-ink: rgba(1, 5, 18, 0.96);
+  --login-mesh-fade-stop: 66%;
+  --login-bloom: rgba(232, 240, 255, 0.58);
+  --login-bloom-soft: rgba(205, 220, 255, 0.28);
+  --login-bloom-accent: rgba(24, 110, 255, 0.22);
+  --login-bloom-blend: screen;
+  --login-bloom-opacity: 0.84;
+}
+
+:host ::ng-deep {
+  @include host-surfaces.apply-page-surfaces;
+
+  ion-content.login-content::part(scroll) {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .logo-wrap {
+    background: var(--ed-glass-surface-light);
+    backdrop-filter: var(--ed-glass-blur-sm);
+    -webkit-backdrop-filter: var(--ed-glass-blur-sm);
+    border: 1px solid var(--ed-glass-border);
+    border-radius: var(--ed-radius-xl, 3rem);
+    box-shadow: var(--ed-glass-highlight), var(--ed-soft-ui-shadow);
+  }
+
+  .login-input .input-wrapper {
+    border-radius: var(--ed-radius-full);
+    background: transparent;
+  }
+}
+
+.login-content {
+  --background: transparent;
+  --overflow: hidden;
+  position: relative;
+  height: 100%;
+}
+
+.login-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    var(--login-bg-top) 0%,
+    var(--login-bg-bottom) 100%
+  );
+
+  app-aurora-background {
+    position: absolute;
+    inset: 0;
+    opacity: var(--login-aurora-opacity);
+  }
+}
+
+.login-bg-fade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 150% 86% at 100% -2%,
+      var(--login-bloom) 0%,
+      var(--login-bloom-soft) 34%,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 80% 40% at 42% 20%,
+      var(--login-bloom-accent) 0%,
+      transparent 64%
+    ),
+    linear-gradient(
+      180deg,
+      var(--login-fade-top) 0%,
+      var(--login-fade-mid) 30%,
+      var(--login-mesh-ink) 56%,
+      var(--login-bg-bottom) var(--login-mesh-fade-stop),
+      var(--login-bg-bottom) 100%
+    );
+  mix-blend-mode: var(--login-bloom-blend);
+  opacity: var(--login-bloom-opacity);
+}
+
+.login-shell {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  padding: var(--ed-container-padding);
+  padding-bottom: calc(var(--ed-safe-bottom) + env(safe-area-inset-bottom, 0px));
+  max-width: 440px;
+  margin: 0 auto;
+
+  &::before {
+    content: '';
+    flex: 1 1 0;
+    min-height: 0;
+    pointer-events: none;
+  }
+}
+
+.brand-block {
+  text-align: center;
+  width: 100%;
+  margin-bottom: var(--ed-stack-lg);
+}
+
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 20px 28px;
+  margin-bottom: var(--ed-stack-md);
+}
+
+.logo {
+  height: 56px;
+  width: auto;
+}
+
+.brand-tag {
+  margin: 0;
+  color: var(--ed-primary);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ed-stack-sm);
+}
+
+.ed-field .ed-label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.login-input-wrap,
+.login-password-wrap {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  overflow: hidden;
+  border: 1px solid var(--ed-outline-variant);
+  border-radius: var(--ed-radius-full);
+  background: var(--ed-surface-container-lowest);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus-within {
+    border-color: var(--ed-primary);
+    box-shadow: 0 0 0 2px var(--ed-primary-alpha-18);
+  }
+}
+
+.login-password-wrap {
+  gap: 4px;
+  padding-inline-end: 16px;
+}
+
+.login-input {
+  --background: transparent;
+  --border-radius: var(--ed-radius-full);
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --padding-top: 14px;
+  --padding-bottom: 14px;
+  --highlight-color-focused: transparent;
+  --color: var(--ed-on-surface);
+  --placeholder-color: var(--ed-outline);
+  flex: 1;
+  width: 100%;
+  min-height: 52px;
+  border: none;
+  border-radius: var(--ed-radius-full);
+  font-size: 15px;
+  text-transform: none;
+  box-shadow: none;
+
+  &.ion-focused {
+    border: none;
+    box-shadow: none;
+  }
+}
+
+.login-password-wrap .login-input {
+  --padding-end: 8px;
+}
+
+.login-input::part(native) {
+  text-transform: none;
+}
+
+.toggle-pw {
+  background: none;
+  border: none;
+  padding: 8px;
+  margin: 0;
+  color: var(--ed-outline);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  margin-bottom: var(--ed-stack-md);
+  background: var(--ed-error-container);
+  color: var(--ed-on-error);
+  border-radius: var(--ed-radius-md);
+  font-size: 14px;
+}
+
+.submit-btn {
+  margin-top: var(--ed-stack-sm);
+  margin-bottom: 0;
+}
+
+.submit-btn i {
+  margin-right: 8px;
+}

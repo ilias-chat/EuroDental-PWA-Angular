@@ -1,0 +1,141 @@
+<!-- Reply modal -->
+<ion-modal
+  class="ticket-form-modal"
+  [isOpen]="f.showReplyModal()"
+  (didDismiss)="f.closeReplyModal()"
+>
+  <ng-template>
+    <div class="services-picker-shell">
+      <div class="services-picker-handle" aria-hidden="true"></div>
+      <header class="services-picker-header">
+        <h2 class="services-picker-title">Répondre au ticket</h2>
+        <button
+          type="button"
+          class="services-picker-close"
+          (click)="f.closeReplyModal()"
+          aria-label="Fermer"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="services-picker-scroll">
+        <div class="payment-modal-form">
+          <div class="payment-modal-field">
+            <label class="payment-modal-label ed-label" for="reply-body">Message</label>
+            <textarea
+              id="reply-body"
+              class="payment-modal-control ticket-textarea"
+              rows="5"
+              [ngModel]="f.replyForm().body"
+              (ngModelChange)="f.setReplyBody($event)"
+              placeholder="Écrivez votre réponse…"
+            ></textarea>
+          </div>
+
+          <div class="payment-modal-field">
+            <label class="payment-modal-label ed-label" for="reply-attachment">Pièce jointe</label>
+            <div
+              class="ticket-attachment-picker"
+              [class.ticket-attachment-picker--filled]="!!f.replyAttachmentPreview()"
+            >
+              <input
+                id="reply-attachment"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                (change)="onReplyAttachmentChange($event)"
+              />
+              @if (f.replyAttachmentPreview(); as preview) {
+                <div class="ticket-attachment-picker__preview">
+                  <img [src]="preview" alt="Aperçu" />
+                  <button
+                    type="button"
+                    class="ticket-attachment-picker__clear"
+                    (click)="f.clearReplyAttachment()"
+                    aria-label="Supprimer l'image"
+                  >
+                    <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                  </button>
+                </div>
+              } @else {
+                <div class="ticket-attachment-picker__placeholder">
+                  <i class="fa-solid fa-image" aria-hidden="true"></i>
+                  <span>JPEG, PNG, WebP ou GIF · max 5 Mo</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="services-picker-footer">
+        <button
+          type="button"
+          class="payment-modal-save"
+          [disabled]="!f.replyForm().body.trim() || f.submittingReply()"
+          (click)="f.submitReply()"
+        >
+          @if (f.submittingReply()) {
+            <ion-spinner name="crescent" />
+          } @else {
+            Envoyer
+          }
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- Resolve confirmation -->
+<ion-modal
+  class="ticket-resolve-confirm-modal"
+  [isOpen]="f.showResolveConfirm()"
+  (didDismiss)="f.closeResolveConfirm()"
+>
+  <ng-template>
+    <div class="ticket-resolve-confirm-shell">
+      <div class="services-picker-handle" aria-hidden="true"></div>
+      <header class="services-picker-header">
+        <h2 class="services-picker-title">Marquer comme résolu</h2>
+        <button
+          type="button"
+          class="services-picker-close"
+          (click)="f.closeResolveConfirm()"
+          aria-label="Fermer"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+      <div class="ticket-resolve-confirm-body">
+        <p class="ticket-resolve-confirm-message">
+          Êtes-vous sûr de vouloir marquer ce ticket comme résolu ?
+        </p>
+      </div>
+      <footer class="ticket-resolve-confirm-footer">
+        <div class="ticket-resolve-confirm-actions">
+          <button
+            type="button"
+            class="ticket-resolve-confirm-btn ticket-resolve-confirm-btn--secondary"
+            [disabled]="f.resolving()"
+            (click)="f.closeResolveConfirm()"
+          >
+            Annuler
+          </button>
+          <button
+            type="button"
+            class="ticket-resolve-confirm-btn ticket-resolve-confirm-btn--primary"
+            [disabled]="f.resolving()"
+            (click)="f.confirmResolve()"
+          >
+            @if (f.resolving()) {
+              <ion-spinner name="crescent" color="light" />
+            } @else {
+              <i class="fa-solid fa-check" aria-hidden="true"></i>
+              Confirmer
+            }
+          </button>
+        </div>
+      </footer>
+    </div>
+  </ng-template>
+</ion-modal>

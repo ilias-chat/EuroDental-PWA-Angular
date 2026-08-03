@@ -1,0 +1,35 @@
+<div class="tabs-layout">
+  <app-app-header />
+  <ion-tabs class="tabs-with-header">
+    <ion-tab-bar slot="bottom" class="app-tab-bar">
+      @if (auth.canAccessMobileTasks()) {
+        <ion-tab-button tab="tasks" href="/tabs/tasks">
+          <ion-icon name="list-outline"></ion-icon>
+          <ion-label>Tâches</ion-label>
+        </ion-tab-button>
+      }
+      <ion-tab-button tab="deplacement" href="/tabs/deplacement">
+        <ion-icon name="car-outline"></ion-icon>
+        <ion-label>Déplacement</ion-label>
+      </ion-tab-button>
+      @if (auth.canProposeTasks()) {
+        <ion-tab-button tab="propose" href="/tabs/propose">
+          <ion-icon name="bulb-outline"></ion-icon>
+          <ion-label>Proposer</ion-label>
+        </ion-tab-button>
+      }
+      @if (auth.canAccessTickets()) {
+        <ion-tab-button tab="tickets" href="/tabs/tickets">
+          <ion-icon name="ticket-outline"></ion-icon>
+          <ion-label>Tickets</ion-label>
+        </ion-tab-button>
+      }
+      @if (auth.canAccessMobileStock()) {
+        <ion-tab-button tab="stock" href="/tabs/stock">
+          <ion-icon name="cube-outline"></ion-icon>
+          <ion-label>Stock</ion-label>
+        </ion-tab-button>
+      }
+    </ion-tab-bar>
+  </ion-tabs>
+</div>

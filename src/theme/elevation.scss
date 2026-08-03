@@ -1,0 +1,17 @@
+// Soft UI — uses CSS tokens from variables.scss
+$ed-soft-ui-shadow: var(--ed-soft-ui-shadow);
+$ed-radius-card: var(--ed-radius-card);
+
+@mixin ed-elevated-surface {
+  background: var(--ed-surface-container-lowest);
+  border-radius: $ed-radius-card;
+  border: 1px solid var(--ed-surface-container-highest);
+  box-shadow: $ed-soft-ui-shadow;
+}
+
+@mixin ed-tonal-surface {
+  background: var(--ed-surface-container-low);
+  border-radius: $ed-radius-card;
+  border: none;
+  box-shadow: none;
+}

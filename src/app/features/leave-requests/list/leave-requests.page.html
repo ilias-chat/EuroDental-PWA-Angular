@@ -1,0 +1,464 @@
+<app-app-header [showBack]="true" [backHref]="auth.defaultAppTabPath()" />
+
+<ion-content [fullscreen]="true" class="leave-page ed-content-padded">
+  <ion-refresher slot="fixed" (ionRefresh)="load($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="ed-page ed-page-stack leave-page-inner">
+    <header class="leave-page-header">
+      <h1 class="ed-headline">Mes Congés</h1>
+      <p class="ed-body-md leave-page-subtitle">Gérer vos demandes de congé</p>
+    </header>
+
+    @if (error()) {
+      <div class="error-banner" role="alert">
+        <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="leave-loading center-state">
+        <ion-spinner name="crescent" aria-label="Chargement" />
+      </div>
+    } @else if (requests().length === 0) {
+      <div class="ed-card center-state leave-empty">
+        <div class="leave-empty-icon" aria-hidden="true">
+          <i class="fa-solid fa-calendar-days"></i>
+        </div>
+        <h2 class="ed-headline-md">Aucune demande</h2>
+        <p class="ed-body-md">Vous n'avez pas encore fait de demande de congé</p>
+        <button type="button" class="leave-primary-btn" (click)="openCreateModal()">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          Demander un congé
+        </button>
+      </div>
+    } @else {
+      <div class="leave-list">
+        @for (request of requests(); track request.id) {
+          <article
+            class="ed-card leave-card leave-card--clickable"
+            role="button"
+            tabindex="0"
+            (click)="openDetailModal(request)"
+            (keydown.enter)="openDetailModal(request)"
+          >
+            <div class="leave-card-body">
+              <div class="leave-card-top">
+                <div class="leave-card-main">
+                  <div class="leave-period">
+                    <div class="leave-period-label">
+                      <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
+                      <span>Période de congé</span>
+                    </div>
+                    <p class="leave-period-dates">
+                      <span class="leave-period-line">
+                        <span class="leave-period-preposition">de</span>
+                        {{ formatDateWithDay(request.start_date) }}
+                      </span>
+                      <span class="leave-period-line">
+                        <span class="leave-period-preposition">à</span>
+                        {{ formatDateWithDay(request.end_date) }}
+                      </span>
+                    </p>
+                    <p class="leave-period-days ed-body-md">
+                      <i class="fa-solid fa-clock" aria-hidden="true"></i>
+                      {{ leaveDaysLabel(calculateLeaveDays(request.start_date, request.end_date)) }}
+                    </p>
+                  </div>
+
+                </div>
+
+                <div class="leave-card-badges">
+                  <span [class]="statusBadgeClass(request.status)">
+                    {{ getStatusLabel(request.status) }}
+                  </span>
+                  @if (request.leave_type) {
+                    <span class="leave-type-badge">{{ getLeaveTypeLabel(request.leave_type) }}</span>
+                  }
+                </div>
+              </div>
+
+              @if (request.reviewed_by_name && request.reviewed_at) {
+                <p class="leave-reviewed ed-body-md">
+                  Examiné par {{ request.reviewed_by_name }} le {{ formatDateTime(request.reviewed_at) }}
+                </p>
+              }
+
+              @if (request.rejection_reason) {
+                <div class="leave-rejection" role="note">
+                  <strong>Raison du refus:</strong> {{ request.rejection_reason }}
+                </div>
+              }
+            </div>
+
+            <footer class="leave-card-footer">
+              <span class="leave-created ed-body-md">Créé le {{ formatDateTime(request.created_at) }}</span>
+              <div class="leave-card-actions">
+                @if (request.status === 'waiting') {
+                  <button
+                    type="button"
+                    class="leave-icon-btn leave-icon-btn--edit"
+                    (click)="$event.stopPropagation(); openEditModal(request)"
+                    aria-label="Modifier"
+                  >
+                    <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="leave-icon-btn leave-icon-btn--delete"
+                    (click)="$event.stopPropagation(); requestDelete(request.id)"
+                    aria-label="Supprimer"
+                  >
+                    <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                  </button>
+                }
+                @if (request.status === 'accepted' && canCancelLeaveRequest(request)) {
+                  <button
+                    type="button"
+                    class="leave-icon-btn leave-icon-btn--cancel"
+                    (click)="$event.stopPropagation(); cancelRequest(request.id)"
+                    aria-label="Annuler"
+                  >
+                    <i class="fa-solid fa-times" aria-hidden="true"></i>
+                  </button>
+                }
+              </div>
+            </footer>
+          </article>
+        }
+      </div>
+    }
+  </div>
+
+  @if (!loading() && requests().length > 0) {
+    <button type="button" class="leave-fab" (click)="openCreateModal()" aria-label="Demander un congé">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
+    </button>
+  }
+</ion-content>
+
+<ion-modal
+  class="leave-request-form-modal"
+  [isOpen]="showModal()"
+  (didDismiss)="closeModal()"
+>
+  <ng-template>
+    <div class="services-picker-shell">
+      <div class="services-picker-handle" aria-hidden="true"></div>
+
+      <header class="services-picker-header">
+        <h2 class="services-picker-title">
+          {{ editMode() ? 'Modifier la demande' : 'Demander un congé' }}
+        </h2>
+        <button type="button" class="services-picker-close" (click)="closeModal()" aria-label="Fermer">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="services-picker-scroll">
+        <form class="leave-form" (submit)="$event.preventDefault(); submitForm()">
+          <div class="leave-form-row">
+            <div class="leave-form-field">
+              <label class="leave-form-label leave-form-label--required" for="leave-start">Date de début</label>
+              <input
+                id="leave-start"
+                type="date"
+                class="leave-form-control"
+                required
+                [min]="todayIso()"
+                [value]="form().start_date"
+                (input)="onStartDateChange($any($event.target).value)"
+              />
+            </div>
+            <div class="leave-form-field">
+              <label class="leave-form-label leave-form-label--required" for="leave-end">Date de fin</label>
+              <input
+                id="leave-end"
+                type="date"
+                class="leave-form-control"
+                required
+                [min]="formMinEndDate()"
+                [value]="form().end_date"
+                (input)="updateFormField('end_date', $any($event.target).value)"
+              />
+            </div>
+          </div>
+
+          <div class="leave-form-field">
+            <label class="leave-form-label" for="leave-type">Type de congé</label>
+            <select
+              id="leave-type"
+              class="leave-form-control leave-form-control--select"
+              [value]="form().leave_type"
+              (change)="updateFormField('leave_type', $any($event.target).value)"
+            >
+              <option value="">Sélectionner un type</option>
+              <option value="vacation">Vacances</option>
+              <option value="sick_leave">Maladie</option>
+              <option value="personal">Personnel</option>
+              <option value="other">Autre</option>
+            </select>
+          </div>
+
+          <div class="leave-form-field">
+            <label class="leave-form-label" for="leave-desc">Description</label>
+            <textarea
+              id="leave-desc"
+              class="leave-form-control leave-form-textarea"
+              rows="3"
+              placeholder="Détails supplémentaires (optionnel)"
+              [value]="form().description"
+              (input)="updateFormField('description', $any($event.target).value)"
+            ></textarea>
+          </div>
+
+          <fieldset class="leave-form-justification">
+            <legend class="leave-form-legend">Méthode de justification</legend>
+            <div class="leave-form-radio-list">
+              <label class="leave-form-radio">
+                <input
+                  type="radio"
+                  name="justification"
+                  value="whatsapp"
+                  [checked]="form().justification_method === 'whatsapp'"
+                  (change)="updateFormField('justification_method', 'whatsapp')"
+                />
+                <i class="fa-brands fa-whatsapp leave-form-radio-icon leave-form-radio-icon--whatsapp" aria-hidden="true"></i>
+                <span>WhatsApp</span>
+              </label>
+              <label class="leave-form-radio">
+                <input
+                  type="radio"
+                  name="justification"
+                  value="email"
+                  [checked]="form().justification_method === 'email'"
+                  (change)="updateFormField('justification_method', 'email')"
+                />
+                <i class="fa-solid fa-envelope leave-form-radio-icon leave-form-radio-icon--email" aria-hidden="true"></i>
+                <span>Email</span>
+              </label>
+              <label class="leave-form-radio">
+                <input
+                  type="radio"
+                  name="justification"
+                  value="telegram"
+                  [checked]="form().justification_method === 'telegram'"
+                  (change)="updateFormField('justification_method', 'telegram')"
+                />
+                <i class="fa-brands fa-telegram leave-form-radio-icon leave-form-radio-icon--telegram" aria-hidden="true"></i>
+                <span>Telegram</span>
+              </label>
+              <label class="leave-form-radio">
+                <input
+                  type="radio"
+                  name="justification"
+                  value="other"
+                  [checked]="form().justification_method === 'other'"
+                  (change)="updateFormField('justification_method', 'other')"
+                />
+                <i class="fa-solid fa-ellipsis leave-form-radio-icon" aria-hidden="true"></i>
+                <span>Autre</span>
+              </label>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+
+      <div class="services-picker-footer">
+        <button
+          type="button"
+          class="leave-form-submit"
+          (click)="submitForm()"
+          [disabled]="submitting() || !form().start_date || !form().end_date"
+        >
+          @if (submitting()) {
+            <ion-spinner name="crescent" color="light"></ion-spinner>
+            <span>{{ editMode() ? 'Mise à jour...' : 'Création...' }}</span>
+          } @else {
+            <i class="fa-solid fa-check" aria-hidden="true"></i>
+            <span>{{ editMode() ? 'Mettre à jour' : 'Créer la demande' }}</span>
+          }
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<ion-modal
+  class="leave-detail-modal"
+  [isOpen]="showDetailModal()"
+  (didDismiss)="closeDetailModal()"
+>
+  <ng-template>
+    @if (selectedRequest(); as r) {
+      <div class="services-picker-shell">
+        <div class="services-picker-handle" aria-hidden="true"></div>
+
+        <header class="services-picker-header">
+          <h2 class="services-picker-title">Détails du congé</h2>
+          <button type="button" class="services-picker-close" (click)="closeDetailModal()" aria-label="Fermer">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </header>
+
+        <div class="services-picker-scroll leave-detail-scroll">
+          <section class="leave-detail-block leave-detail-block--badges">
+            <div class="leave-detail-badges">
+              <span [class]="statusBadgeClass(r.status)">{{ getStatusLabel(r.status) }}</span>
+              @if (r.leave_type) {
+                <span class="leave-type-badge">{{ getLeaveTypeLabel(r.leave_type) }}</span>
+              }
+            </div>
+          </section>
+
+          <section class="leave-detail-block">
+            <h3 class="leave-detail-section-title">
+              <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
+              Période
+            </h3>
+            <p class="leave-detail-line">
+              <span class="leave-period-preposition">de</span>
+              {{ formatDateWithDay(r.start_date) }}
+            </p>
+            <p class="leave-detail-line">
+              <span class="leave-period-preposition">à</span>
+              {{ formatDateWithDay(r.end_date) }}
+            </p>
+            <p class="leave-detail-meta">
+              <i class="fa-solid fa-clock" aria-hidden="true"></i>
+              {{ leaveDaysLabel(calculateLeaveDays(r.start_date, r.end_date)) }}
+            </p>
+          </section>
+
+          <section class="leave-detail-block">
+            <h3 class="leave-detail-section-title">
+              <i class="fa-solid fa-tag" aria-hidden="true"></i>
+              Type de congé
+            </h3>
+            <p class="leave-detail-value">
+              {{ r.leave_type ? getLeaveTypeLabel(r.leave_type) : 'Non renseigné' }}
+            </p>
+          </section>
+
+          <section class="leave-detail-block">
+            <h3 class="leave-detail-section-title">
+              <i class="fa-solid fa-align-left" aria-hidden="true"></i>
+              Description
+            </h3>
+            <p class="leave-detail-value leave-detail-value--block">
+              {{ r.description?.trim() || 'Non renseignée' }}
+            </p>
+          </section>
+
+          <section class="leave-detail-block">
+            <h3 class="leave-detail-section-title">
+              <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+              Méthode de justification
+            </h3>
+            <p class="leave-detail-value">
+              @if (r.justification_method) {
+                {{ getJustificationLabel(r.justification_method) }}
+              } @else {
+                Non renseignée
+              }
+            </p>
+          </section>
+
+          <section class="leave-detail-block">
+            <h3 class="leave-detail-section-title">
+              <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+              Création
+            </h3>
+            <p class="leave-detail-value">Créé le {{ formatDateTime(r.created_at) }}</p>
+          </section>
+
+          @if (r.reviewed_by_name && r.reviewed_at) {
+            <section class="leave-detail-block">
+              <h3 class="leave-detail-section-title">
+                <i class="fa-solid fa-user-check" aria-hidden="true"></i>
+                Examen
+              </h3>
+              <p class="leave-detail-value">
+                Examiné par {{ r.reviewed_by_name }} le {{ formatDateTime(r.reviewed_at) }}
+              </p>
+            </section>
+          }
+
+          @if (r.rejection_reason) {
+            <section class="leave-detail-block leave-detail-block--rejection" role="note">
+              <h3 class="leave-detail-section-title">
+                <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                Raison du refus
+              </h3>
+              <p class="leave-detail-value">{{ r.rejection_reason }}</p>
+            </section>
+          }
+        </div>
+
+        @if (r.status === 'accepted' && canCancelLeaveRequest(r)) {
+          <footer class="services-picker-footer leave-detail-footer">
+            <div class="leave-detail-actions">
+              <button
+                type="button"
+                class="leave-icon-btn leave-icon-btn--cancel"
+                (click)="onDetailCancelClick($event, r.id)"
+                aria-label="Annuler la demande"
+              >
+                <i class="fa-solid fa-times" aria-hidden="true"></i>
+              </button>
+            </div>
+          </footer>
+        }
+      </div>
+    }
+  </ng-template>
+</ion-modal>
+
+<ion-modal
+  class="leave-confirm-modal"
+  [isOpen]="showDeleteConfirm()"
+  (didDismiss)="closeDeleteConfirm()"
+>
+  <ng-template>
+    <div class="services-picker-shell leave-confirm-shell">
+      <div class="services-picker-handle" aria-hidden="true"></div>
+
+      <header class="services-picker-header">
+        <h2 class="services-picker-title">Supprimer la demande</h2>
+        <button type="button" class="services-picker-close" (click)="closeDeleteConfirm()" aria-label="Fermer">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="leave-confirm-body">
+        <div class="leave-detail-block leave-confirm-message-block">
+          <p class="leave-confirm-message">
+            Êtes-vous sûr de vouloir supprimer cette demande de congé ? Cette action est irréversible.
+          </p>
+        </div>
+      </div>
+
+      <footer class="services-picker-footer leave-confirm-footer">
+        <div class="leave-confirm-actions">
+          <button type="button" class="leave-confirm-btn leave-confirm-btn--secondary" (click)="closeDeleteConfirm()">
+            Annuler
+          </button>
+          <button
+            type="button"
+            class="leave-confirm-btn leave-confirm-btn--danger"
+            (click)="confirmDelete()"
+            [disabled]="deleting()"
+          >
+            @if (deleting()) {
+              <ion-spinner name="crescent" color="light" />
+            } @else {
+              Supprimer
+            }
+          </button>
+        </div>
+      </footer>
+    </div>
+  </ng-template>
+</ion-modal>

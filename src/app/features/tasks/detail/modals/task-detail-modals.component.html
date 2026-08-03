@@ -1,0 +1,466 @@
+<ion-modal
+  class="services-picker-modal"
+  [isOpen]="f.showServicesModal()"
+  (didDismiss)="f.closeServicesModal()"
+>
+  <ng-template>
+    <div class="services-picker-shell">
+      <div class="services-picker-handle" aria-hidden="true"></div>
+
+      <header class="services-picker-header">
+        <h2 class="services-picker-title">Sélectionner les services</h2>
+        <button
+          type="button"
+          class="services-picker-close"
+          (click)="f.closeServicesModal()"
+          aria-label="Fermer"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="services-picker-search">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input
+          type="search"
+          class="services-picker-search-input"
+          placeholder="Rechercher un service..."
+          [value]="f.serviceSearch()"
+          (input)="f.onServiceSearchInput($any($event.target).value)"
+        />
+      </div>
+
+      <div class="services-picker-scroll">
+        @if (!f.filteredServices().length && !f.serviceSearch()) {
+          <div class="services-picker-empty">
+            <i class="fa-solid fa-screwdriver-wrench"></i>
+            <p>Aucun service disponible</p>
+          </div>
+        } @else if (!f.filteredServices().length) {
+          <div class="services-picker-empty">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <p>Aucun service trouvé</p>
+          </div>
+        } @else {
+          @for (service of f.filteredServices(); track service.id) {
+            <label
+              class="ed-card service-picker-card"
+              [class.service-picker-card--selected]="f.isServiceSelected(service.id)"
+            >
+              <span class="service-picker-checkbox" aria-hidden="true">
+                @if (f.isServiceSelected(service.id)) {
+                  <i class="fa-solid fa-check"></i>
+                }
+              </span>
+              <input
+                type="checkbox"
+                class="service-picker-checkbox-input"
+                [checked]="f.isServiceSelected(service.id)"
+                (change)="f.toggleServiceSelection(service.id)"
+              />
+              <span class="service-picker-text">
+                <span class="service-picker-name">{{ service.name }}</span>
+                @if (service.description) {
+                  <span class="service-picker-desc">{{ service.description }}</span>
+                }
+              </span>
+            </label>
+          }
+        }
+      </div>
+
+      <div class="services-picker-footer services-picker-footer--sticky">
+        <button
+          type="button"
+          class="services-picker-save"
+          (click)="f.saveServices()"
+          [disabled]="f.savingServices()"
+        >
+          @if (f.savingServices()) {
+            <ion-spinner name="crescent" color="light"></ion-spinner>
+            <span>Enregistrement...</span>
+          } @else {
+            Enregistrer
+          }
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<ion-modal
+  class="services-picker-modal propose-service-modal"
+  [isOpen]="f.showProposeServiceModal()"
+  (didDismiss)="f.closeProposeServiceModal()"
+>
+  <ng-template>
+    <div class="services-picker-shell">
+      <div class="services-picker-handle" aria-hidden="true"></div>
+
+      <header class="services-picker-header">
+        <h2 class="services-picker-title">Proposer un service</h2>
+        <button
+          type="button"
+          class="services-picker-close"
+          (click)="f.closeProposeServiceModal()"
+          aria-label="Fermer"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="services-picker-scroll propose-service-scroll">
+        <label class="propose-service-label ed-label" for="proposed-service-name">Nom du service</label>
+        <input
+          id="proposed-service-name"
+          type="text"
+          class="services-picker-search-input propose-service-input"
+          placeholder="Entrez le nom du service"
+          [value]="f.proposedServiceName()"
+          (input)="f.proposedServiceName.set($any($event.target).value)"
+        />
+      </div>
+
+      <div class="services-picker-footer">
+        <button
+          type="button"
+          class="services-picker-save"
+          (click)="f.submitServiceProposal()"
+          [disabled]="f.isProposingService() || !f.proposedServiceName().trim()"
+        >
+          @if (f.isProposingService()) {
+            <ion-spinner name="crescent" color="light"></ion-spinner>
+            <span>Envoi...</span>
+          } @else {
+            Envoyer
+          }
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<ion-modal
+  class="services-picker-modal description-edit-modal"
+  [isOpen]="f.showDescriptionEditModal()"
+  (didDismiss)="f.closeDescriptionEditModal()"
+>
+  <ng-template>
+    <div class="services-picker-shell">
+      <div class="services-picker-handle" aria-hidden="true"></div>
+
+      <header class="services-picker-header">
+        <h2 class="services-picker-title">Modifier la description</h2>
+        <button
+          type="button"
+          class="services-picker-close"
+          (click)="f.closeDescriptionEditModal()"
+          aria-label="Fermer"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="description-edit-toolbar">
+        <button
+          type="button"
+          class="description-toolbar-btn"
+          title="Gras"
+          (click)="f.wrapDescriptionText('**', '**', descriptionTextarea)"
+        >
+          <i class="fa-solid fa-bold" aria-hidden="true"></i>
+        </button>
+        <button
+          type="button"
+          class="description-toolbar-btn"
+          title="Italique"
+          (click)="f.wrapDescriptionText('*', '*', descriptionTextarea)"
+        >
+          <i class="fa-solid fa-italic" aria-hidden="true"></i>
+        </button>
+        <button
+          type="button"
+          class="description-toolbar-btn"
+          title="Liste à puces"
+          (click)="f.wrapDescriptionText('- ', '', descriptionTextarea)"
+        >
+          <i class="fa-solid fa-list-ul" aria-hidden="true"></i>
+        </button>
+        <span class="description-toolbar-hint">**gras** *italique* - liste</span>
+      </div>
+
+      <div class="services-picker-scroll description-edit-scroll">
+        <textarea
+          #descriptionTextarea
+          class="description-edit-textarea"
+          placeholder="Ajouter une description..."
+          [value]="f.descriptionEdit()"
+          (input)="f.descriptionEdit.set($any($event.target).value)"
+        ></textarea>
+      </div>
+
+      <div class="services-picker-footer">
+        <button
+          type="button"
+          class="services-picker-save"
+          (click)="f.saveDescription()"
+          [disabled]="f.isSavingDescription()"
+        >
+          @if (f.isSavingDescription()) {
+            <ion-spinner name="crescent" color="light"></ion-spinner>
+            <span>Enregistrement...</span>
+          } @else {
+            Enregistrer
+          }
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<ion-modal
+  class="services-picker-modal proposition-details-modal"
+  [isOpen]="f.showPropositionDetailsModal()"
+  (didDismiss)="f.closePropositionDetailsModal()"
+>
+  <ng-template>
+    @if (f.selectedProposition(); as p) {
+      <div class="services-picker-shell">
+        <div class="services-picker-handle" aria-hidden="true"></div>
+
+        <header class="services-picker-header">
+          <h2 class="services-picker-title">Détails de la proposition</h2>
+          <button
+            type="button"
+            class="services-picker-close"
+            (click)="f.closePropositionDetailsModal()"
+            aria-label="Fermer"
+          >
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </header>
+
+        <div class="services-picker-scroll proposition-details-scroll">
+          <article class="ed-card proposition-details-card">
+            <p class="service-picker-name">{{ p.name }}</p>
+            <p class="service-picker-desc proposition-details-meta">
+              Proposé par <strong>{{ p.proposed_by_name || 'Inconnu' }}</strong>
+              @if (p.created_at) {
+                le {{ p.created_at }}
+              }
+            </p>
+            <p class="proposition-details-status">
+              <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
+              En attente d'approbation
+            </p>
+          </article>
+        </div>
+      </div>
+    }
+  </ng-template>
+</ion-modal>
+
+@if (f.task(); as t) {
+  <ion-modal
+    class="services-picker-modal client-payment-modal"
+    [isOpen]="f.showPaymentModal()"
+    (didDismiss)="f.closePaymentModal()"
+  >
+    <ng-template>
+      <div class="services-picker-shell">
+        <div class="services-picker-handle" aria-hidden="true"></div>
+
+        <header class="services-picker-header">
+          <h2 class="services-picker-title">Enregistrer un paiement</h2>
+          <button type="button" class="services-picker-close" (click)="f.closePaymentModal()" aria-label="Fermer">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </header>
+
+        <div class="services-picker-scroll payment-modal-scroll">
+          <div class="payment-modal-form">
+            <div class="payment-modal-field">
+              <label class="payment-modal-label" for="payment-amount">Montant payé (DH)</label>
+              <input
+                id="payment-amount"
+                type="number"
+                class="payment-modal-control"
+                step="0.01"
+                min="0"
+                placeholder="Entrez le montant payé"
+                [value]="f.paymentAmount()"
+                (input)="f.paymentAmount.set($any($event.target).value)"
+              />
+            </div>
+
+            <div class="payment-modal-info-badge" role="note">
+              <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+              <span>Le montant saisi sera enregistré et la tâche sera marquée comme payée.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="services-picker-footer payment-modal-footer">
+          <button
+            type="button"
+            class="payment-modal-save"
+            (click)="f.savePayment()"
+            [disabled]="f.isSavingPayment() || f.paymentAmount() === '' || f.parseFloat(f.paymentAmount()) < 0"
+          >
+            @if (f.isSavingPayment()) {
+              <ion-spinner name="crescent" color="light"></ion-spinner>
+              <span>Enregistrement...</span>
+            } @else {
+              <span>Enregistrer</span>
+            }
+          </button>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+
+  <ion-modal
+    class="services-picker-modal admin-delivery-modal"
+    [isOpen]="f.showAdminDeliveryPaymentModal()"
+    (didDismiss)="f.closeAdminDeliveryPaymentModal()"
+  >
+    <ng-template>
+      <div class="services-picker-shell">
+        <div class="services-picker-handle" aria-hidden="true"></div>
+
+        <header class="services-picker-header">
+          <h2 class="services-picker-title">Paiement à remettre à l'administration</h2>
+          <button
+            type="button"
+            class="services-picker-close"
+            (click)="f.closeAdminDeliveryPaymentModal()"
+            aria-label="Fermer"
+          >
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </header>
+
+        <div class="services-picker-scroll payment-modal-scroll">
+          <div class="payment-modal-form">
+            <div class="payment-modal-field">
+              <label class="payment-modal-label" for="admin-delivery-amount">Montant à remettre (DH)</label>
+              <input
+                id="admin-delivery-amount"
+                type="number"
+                class="payment-modal-control"
+                step="0.01"
+                min="0"
+                placeholder="Entrez le montant"
+                [value]="f.adminDeliveryPaymentAmount()"
+                (input)="f.adminDeliveryPaymentAmount.set($any($event.target).value)"
+              />
+            </div>
+
+            <div class="payment-modal-field">
+              <label class="payment-modal-label" for="admin-delivery-date">Date de remise prévue</label>
+              <input
+                id="admin-delivery-date"
+                type="date"
+                class="payment-modal-control"
+                [value]="f.adminDeliveryPaymentDate()"
+                (input)="f.adminDeliveryPaymentDate.set($any($event.target).value)"
+              />
+            </div>
+
+            <div class="payment-modal-info-badge" role="note">
+              <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+              <span>Une tâche de livraison à l'administration sera créée (même technicien, à la date choisie).</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="services-picker-footer payment-modal-footer">
+          <button
+            type="button"
+            class="payment-modal-save"
+            (click)="f.saveAdminDeliveryPayment()"
+            [disabled]="
+              f.isSavingAdminDeliveryPayment() ||
+              !f.adminDeliveryPaymentAmount() ||
+              f.parseFloat(f.adminDeliveryPaymentAmount()) < 0
+            "
+          >
+            @if (f.isSavingAdminDeliveryPayment()) {
+              <ion-spinner name="crescent" color="light"></ion-spinner>
+              <span>Enregistrement...</span>
+            } @else {
+              <span>Enregistrer</span>
+            }
+          </button>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+}
+
+<ion-modal
+  class="services-picker-modal delivery-received-modal"
+  [isOpen]="f.showDeliveryReceivedByModal()"
+  (didDismiss)="f.closeDeliveryReceivedByModal()"
+>
+  <ng-template>
+    <div class="services-picker-shell">
+      <div class="services-picker-handle" aria-hidden="true"></div>
+
+      <header class="services-picker-header">
+        <h2 class="services-picker-title">Qui a reçu le paiement ?</h2>
+        <button
+          type="button"
+          class="services-picker-close"
+          (click)="f.closeDeliveryReceivedByModal()"
+          aria-label="Fermer"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="services-picker-scroll payment-modal-scroll">
+        <div class="payment-modal-form">
+          <div class="payment-modal-field">
+            <label class="payment-modal-label" for="delivery-received-by">
+              Personne ayant reçu le paiement *
+            </label>
+            <select
+              id="delivery-received-by"
+              class="payment-modal-control payment-modal-control--select"
+              [value]="f.deliveryReceivedByUserId() ?? ''"
+              (change)="f.deliveryReceivedByUserId.set($any($event.target).value ? +$any($event.target).value : null)"
+              [disabled]="f.loadingUsers()"
+            >
+              <option value="">Choisir...</option>
+              @for (user of f.allUsers(); track user.id) {
+                <option [value]="user.id">{{ user.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="payment-modal-info-badge" role="note">
+            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+            <span>Indiquez qui a reçu le paiement avant de terminer la tâche.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="services-picker-footer payment-modal-footer">
+        <button
+          type="button"
+          class="payment-modal-save"
+          (click)="f.finishTaskWithReceivedBy()"
+          [disabled]="!f.deliveryReceivedByUserId() || f.actionLoading() === 'finish_task'"
+        >
+          @if (f.actionLoading() === 'finish_task') {
+            <ion-spinner name="crescent" color="light"></ion-spinner>
+            <span>Finalisation...</span>
+          } @else {
+            <span>Terminer la tâche</span>
+          }
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

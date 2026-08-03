@@ -1,0 +1,212 @@
+@if (f.task(); as t) {
+  <div class="ed-page ed-page-stack tab-panel">
+    @if (f.teamMembers(t).length) {
+      <section class="ed-card team-filter-card">
+        <div class="team-filter-row">
+          <button
+            type="button"
+            class="team-filter-tout"
+            [class.team-filter-tout--active]="f.isTimelineFilterActive(null)"
+            (click)="f.setTimelineFilter(null)"
+          >
+            Tout
+          </button>
+          @for (member of f.teamMembers(t); track member.id) {
+            <button
+              type="button"
+              class="team-filter-avatar"
+              [class.team-filter-avatar--active]="f.isTimelineFilterActive(member.id)"
+              [attr.aria-label]="'Filtrer par ' + member.name"
+              (click)="f.setTimelineFilter(member.id)"
+            >
+              <app-user-avatar
+                [name]="member.name"
+                [image]="member.image"
+                [highlight]="f.isTimelineFilterActive(member.id)"
+                size="sm"
+              />
+            </button>
+          }
+        </div>
+      </section>
+    }
+
+    <section class="ed-card timeline-card">
+      <div class="timeline-card-header">
+        <div class="timeline-card-title">
+          <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+          <span class="ed-label">Chronologie de progression</span>
+        </div>
+        @if (f.filteredEvents().length > 3) {
+          <button type="button" class="timeline-more-link" (click)="f.showAllEvents.set(!f.showAllEvents())">
+            {{ f.showAllEvents() ? 'Voir moins' : 'Voir plus' }}
+          </button>
+        }
+      </div>
+
+      <div class="timeline-list">
+        <div class="timeline-item">
+          <div class="timeline-icon timeline-icon--scheduled">
+            <i class="fa-solid fa-calendar-day" aria-hidden="true"></i>
+          </div>
+          <div class="timeline-body">
+            <span class="timeline-event-title">Tâche programmée</span>
+            <span class="timeline-event-time">{{ f.formatTimelineDate(t.task_date) }}</span>
+          </div>
+        </div>
+
+        @if (f.filteredEvents().length === 0) {
+          <p class="timeline-empty ed-body-md">Aucune activité pour ce filtre.</p>
+        }
+        @for (ev of f.visibleEvents(); track ev.id) {
+          @let meta = f.eventMeta(ev);
+          <div class="timeline-item">
+            <div class="timeline-icon" [style.background-color]="meta.color">
+              <i [class]="meta.icon" aria-hidden="true"></i>
+            </div>
+            <div class="timeline-body">
+              <span class="timeline-event-title">{{ meta.label }}</span>
+              <span class="timeline-event-time">{{ f.eventTimeLabel(ev) }}</span>
+              @if (ev.user_name) {
+                <div class="timeline-author-pill">
+                  <span class="timeline-author-avatar">{{ f.userInitials(ev.user_name) }}</span>
+                  <span class="timeline-author-label">Par: {{ ev.user_name }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    @if (t.status !== 'terminée' && t.status !== 'annulée' && f.canUseProgressionActions(t)) {
+      <section class="ed-card actions-card">
+        <h3 class="section-label ed-label">Actions</h3>
+        <div class="action-grid">
+          @if (f.showEnRouteButton(t)) {
+            <button
+              type="button"
+              class="progression-action progression-action--route"
+              (click)="f.startRoute()"
+              [disabled]="!!f.actionLoading()"
+            >
+              @if (f.actionLoading() === 'start_route') {
+                <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+                <span>En route…</span>
+              } @else {
+                <i class="fa-solid fa-route" aria-hidden="true"></i>
+                <span>En route</span>
+              }
+            </button>
+          }
+          @if (t.user_last_event === 'start_route') {
+            <button
+              type="button"
+              class="progression-action progression-action--muted"
+              (click)="f.endRoute()"
+              [disabled]="!!f.actionLoading()"
+            >
+              @if (f.actionLoading() === 'end_route') {
+                <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+                <span>Annulation…</span>
+              } @else {
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                <span>Annuler le trajet</span>
+              }
+            </button>
+            <button
+              type="button"
+              class="progression-action progression-action--primary"
+              (click)="f.startVisit()"
+              [disabled]="!!f.actionLoading()"
+            >
+              @if (f.actionLoading() === 'start_visit') {
+                <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+                <span>Démarrage…</span>
+              } @else {
+                <i class="fa-solid fa-play" aria-hidden="true"></i>
+                <span>Démarrer la visite</span>
+              }
+            </button>
+          }
+          @if (t.user_last_event === 'start_visit' || t.user_last_event === 'resume_visit') {
+            <button
+              type="button"
+              class="progression-action progression-action--success"
+              (click)="f.pauseVisit()"
+              [disabled]="!!f.actionLoading()"
+            >
+              @if (f.actionLoading() === 'pause_visit') {
+                <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+                <span>Mise en pause…</span>
+              } @else {
+                <i class="fa-solid fa-pause" aria-hidden="true"></i>
+                <span>Mettre en pause</span>
+              }
+            </button>
+            <button
+              type="button"
+              class="progression-action progression-action--danger"
+              (click)="f.finishVisit()"
+              [disabled]="!!f.actionLoading()"
+            >
+              @if (f.actionLoading() === 'finish_visit') {
+                <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+                <span>Finalisation…</span>
+              } @else {
+                <i class="fa-solid fa-stop" aria-hidden="true"></i>
+                <span>Terminer la visite</span>
+              }
+            </button>
+          }
+          @if (t.user_last_event === 'pause_visit') {
+            <button
+              type="button"
+              class="progression-action progression-action--primary"
+              (click)="f.resumeVisit()"
+              [disabled]="!!f.actionLoading()"
+            >
+              @if (f.actionLoading() === 'resume_visit') {
+                <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+                <span>Reprise…</span>
+              } @else {
+                <i class="fa-solid fa-play" aria-hidden="true"></i>
+                <span>Reprendre la visite</span>
+              }
+            </button>
+            <button
+              type="button"
+              class="progression-action progression-action--danger"
+              (click)="f.finishVisit()"
+              [disabled]="!!f.actionLoading()"
+            >
+              @if (f.actionLoading() === 'finish_visit') {
+                <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+                <span>Finalisation…</span>
+              } @else {
+                <i class="fa-solid fa-stop" aria-hidden="true"></i>
+                <span>Terminer la visite</span>
+              }
+            </button>
+          }
+          @if (f.showFinishTaskButton(t)) {
+            <button
+              type="button"
+              class="progression-action progression-action--finish"
+              (click)="f.onFinishTaskClick()"
+              [disabled]="!!f.actionLoading()"
+            >
+              @if (f.actionLoading() === 'finish_task') {
+                <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+                <span>Finalisation…</span>
+              } @else {
+                <i class="fa-solid fa-flag-checkered" aria-hidden="true"></i>
+                <span>Terminer la tâche</span>
+              }
+            </button>
+          }
+        </div>
+      </section>
+    }
+  </div>
+}

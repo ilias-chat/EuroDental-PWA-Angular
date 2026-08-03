@@ -1,0 +1,82 @@
+<ion-content [fullscreen]="true" [scrollY]="false" class="login-content ed-content-padded">
+  <div class="login-bg" aria-hidden="true">
+    <app-aurora-background
+      [colorStops]="auroraColorStops()"
+      [blend]="auroraBlend()"
+      [amplitude]="auroraAmplitude()"
+      [speed]="auroraSpeed()"
+    />
+    <div class="login-bg-fade"></div>
+  </div>
+
+  <div class="login-shell">
+    <div class="brand-block">
+      <div class="logo-wrap">
+        <img
+          src="https://eurodental.ma/storage/uploads/page_blocks/cvHUbpQ5qSVioTrcPJB4go5oZvnKLeY4vAg7bHjl.png"
+          alt="EuroDental"
+          class="logo"
+        />
+      </div>
+      <p class="ed-label brand-tag">Application mobile lite</p>
+    </div>
+
+    <div class="login-form">
+      <h1 class="ed-headline-md">Connexion</h1>
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="ed-field">
+          <label class="ed-label" for="email">Adresse email</label>
+          <div class="login-input-wrap">
+            <ion-input
+              id="email"
+              class="login-input"
+              type="email"
+              formControlName="email"
+              placeholder="votre@email.com"
+              autocomplete="email"
+              autocapitalize="off"
+              autocorrect="off"
+            ></ion-input>
+          </div>
+        </div>
+
+        <div class="ed-field">
+          <label class="ed-label" for="password">Mot de passe</label>
+          <div class="login-password-wrap">
+            <ion-input
+              id="password"
+              class="login-input"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Votre mot de passe"
+              autocomplete="current-password"
+              autocapitalize="off"
+              autocorrect="off"
+            ></ion-input>
+            <button type="button" class="toggle-pw" (click)="togglePassword()" aria-label="Afficher le mot de passe">
+              <i class="fa-solid" [class.fa-eye]="!showPassword()" [class.fa-eye-slash]="showPassword()"></i>
+            </button>
+          </div>
+        </div>
+
+        @if (error()) {
+          <div class="error-banner">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>{{ error() }}</span>
+          </div>
+        }
+
+        <ion-button expand="block" type="submit" class="ed-btn-primary submit-btn" [disabled]="loading()">
+          @if (loading()) {
+            <ion-spinner name="crescent"></ion-spinner>
+            <span>Connexion en cours...</span>
+          } @else {
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            <span>Se connecter</span>
+          }
+        </ion-button>
+      </form>
+    </div>
+  </div>
+</ion-content>

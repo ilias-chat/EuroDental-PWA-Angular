@@ -1,0 +1,61 @@
+<div class="user-filter-picker" [class.user-filter-picker--open]="dropdownOpen()">
+  <button
+    type="button"
+    class="user-filter-picker__trigger"
+    (click)="toggleDropdown(); $event.stopPropagation()"
+    [attr.aria-expanded]="dropdownOpen()"
+  >
+    <img
+      [src]="userAvatar(selectedUser())"
+      alt=""
+      class="user-filter-picker__avatar"
+      (error)="selectedUser() && onAvatarError(selectedUser()!)"
+    />
+    <span class="user-filter-picker__label">{{ displayLabel() }}</span>
+    <i class="fa-solid fa-chevron-down user-filter-picker__chevron" [class.user-filter-picker__chevron--open]="dropdownOpen()" aria-hidden="true"></i>
+  </button>
+
+  @if (dropdownOpen()) {
+    <div class="user-filter-picker__panel" (click)="$event.stopPropagation()">
+      <div class="user-filter-picker__search-wrap">
+        <input
+          type="text"
+          class="user-filter-picker__search"
+          placeholder="Rechercher un utilisateur…"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+        />
+      </div>
+      <div class="user-filter-picker__list">
+        <button type="button" class="user-filter-picker__option" (click)="pickAll()">
+          <span class="user-filter-picker__option-name">Tous les utilisateurs</span>
+        </button>
+        @if (loading() && !users().length) {
+          <p class="user-filter-picker__empty ed-body-md">Chargement…</p>
+        } @else if (!filteredUsers().length) {
+          <p class="user-filter-picker__empty ed-body-md">Aucun utilisateur trouvé</p>
+        } @else {
+          @for (user of filteredUsers(); track user.id) {
+            <button
+              type="button"
+              class="user-filter-picker__option"
+              [class.user-filter-picker__option--selected]="selectedUserId() === user.id"
+              (click)="pickUser(user)"
+            >
+              <img
+                [src]="userAvatar(user)"
+                alt=""
+                class="user-filter-picker__avatar"
+                (error)="onAvatarError(user)"
+              />
+              <span class="user-filter-picker__option-text">
+                <span class="user-filter-picker__option-name">{{ user.name }}</span>
+                <span class="user-filter-picker__option-meta ed-body-md">{{ user.profile }}</span>
+              </span>
+            </button>
+          }
+        }
+      </div>
+    </div>
+  }
+</div>

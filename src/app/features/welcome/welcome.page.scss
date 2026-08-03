@@ -1,0 +1,85 @@
+﻿@use '../../../theme/host-surfaces';
+
+:host ::ng-deep {
+  @include host-surfaces.apply-page-surfaces;
+}
+
+.welcome-page {
+  --background: var(--ed-surface);
+}
+
+.welcome-hero {
+  padding: var(--ed-stack-lg) var(--ed-container-padding);
+  background: linear-gradient(180deg, var(--ed-surface-container-low) 0%, var(--ed-surface) 100%);
+}
+
+.lead {
+  margin: 8px 0 0;
+  max-width: 320px;
+}
+
+.welcome-body {
+  padding: 0 var(--ed-container-padding) var(--ed-stack-lg);
+  max-width: 560px;
+  margin-inline: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.user-card {
+  padding: 20px;
+}
+
+.user-row {
+  display: flex;
+  gap: var(--ed-stack-md);
+  align-items: center;
+}
+
+.avatar-ring {
+  flex-shrink: 0;
+  padding: 4px;
+  background: var(--ed-surface-container-lowest);
+  border-radius: var(--ed-radius-lg);
+  border: 1px solid var(--ed-surface-container-highest);
+  box-shadow: var(--ed-soft-ui-shadow);
+}
+
+.user-photo {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--ed-radius-md);
+  object-fit: cover;
+  display: block;
+}
+
+.user-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-meta .ed-headline-md {
+  margin: 0;
+}
+
+.email {
+  margin: 8px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.email i {
+  font-size: 13px;
+  color: var(--ed-outline);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.actions ion-button i {
+  margin-right: 8px;
+}

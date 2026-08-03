@@ -1,0 +1,38 @@
+<ion-content [fullscreen]="true" class="welcome-page ed-content-padded">
+  <div class="welcome-hero">
+    <p class="ed-label">EuroDental Mobile</p>
+    <h1 class="ed-headline">Bienvenue !</h1>
+    <p class="lead ed-body-md">Vous êtes connecté à l'application mobile EuroDental.</p>
+  </div>
+
+  <div class="ed-page-stack welcome-body">
+    @if (auth.user(); as u) {
+      <div class="ed-card user-card">
+        <div class="user-row">
+          <div class="avatar-ring soft-ui-shadow-sm">
+            <img [src]="avatarUrl(u.name, u.image)" alt="" class="user-photo" />
+          </div>
+          <div class="user-meta">
+            <p class="ed-type-label">{{ u.profile || 'Technicien' }}</p>
+            <h2 class="ed-headline-md">{{ u.name }}</h2>
+            <p class="email ed-body-md"><i class="fa-solid fa-envelope"></i> {{ u.email }}</p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="actions">
+      @if (auth.canAccessMobileTasks()) {
+        <ion-button expand="block" class="ed-btn-primary" (click)="goToTasks()">
+          <i class="fa-solid fa-list-check"></i>
+          Voir mes tâches du jour
+        </ion-button>
+      }
+
+      <ion-button expand="block" class="ed-btn-secondary" (click)="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Se déconnecter
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

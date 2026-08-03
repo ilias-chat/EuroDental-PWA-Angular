@@ -1,0 +1,145 @@
+<ion-content [fullscreen]="true" class="stock-page ed-content-padded">
+  <ion-refresher slot="fixed" (ionRefresh)="load($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="ed-page ed-page-stack">
+    <div class="stock-search-wrap">
+      <i class="fa-solid fa-magnifying-glass stock-search-icon" aria-hidden="true"></i>
+      <input
+        type="search"
+        class="stock-search-input"
+        placeholder="Rechercher des produits..."
+        [value]="searchQuery()"
+        (input)="onSearchInput($any($event.target).value)"
+        aria-label="Rechercher des produits"
+      />
+      @if (searching()) {
+        <ion-spinner class="stock-search-spinner" name="crescent" aria-label="Recherche en cours" />
+      }
+    </div>
+
+    @if (error()) {
+      <div class="error-banner" role="alert">
+        <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="product-list">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="product-card skeleton-card" aria-hidden="true">
+            <div class="skeleton-row">
+              <div class="skeleton-thumb"></div>
+              <div class="skeleton-lines">
+                <div class="skeleton-line wide"></div>
+                <div class="skeleton-line narrow"></div>
+              </div>
+            </div>
+            <div class="skeleton-footer"></div>
+          </div>
+        }
+      </div>
+    } @else if (products().length === 0) {
+      <div class="ed-card center-state empty">
+        <div class="empty-icon-wrap">
+          <i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i>
+        </div>
+        <h2 class="ed-headline-md">Aucun produit trouvé</h2>
+        <p class="ed-body-md">Essayez d'ajuster votre recherche</p>
+      </div>
+    } @else {
+      <div class="product-list">
+        @for (product of products(); track product.id) {
+          <article class="ed-card product-card">
+            <div class="product-card-top">
+              <div class="product-thumb" [class.product-thumb--fallback]="!product.image_url">
+                @if (product.image_url) {
+                  <img
+                    [src]="product.image_url"
+                    [alt]="product.product_name"
+                    loading="lazy"
+                    (error)="onImageError($event)"
+                  />
+                } @else {
+                  <i class="fa-solid fa-image" aria-hidden="true"></i>
+                }
+              </div>
+              <div class="product-card-intro">
+                <h3 class="product-name">{{ product.product_name }}</h3>
+                <div class="product-meta">
+                  <span class="product-meta-chip">{{ product.category || 'Sans catégorie' }}</span>
+                  <span class="product-meta-chip">{{ product.brand || 'Sans marque' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="product-card-divider" aria-hidden="true"></div>
+            <div class="product-card-bottom">
+              <p class="product-price">{{ formatProductPrice(product.price) }}</p>
+              <span [class]="stockBadgeClass(product.stock_quantity)">
+                <i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i>
+                {{ product.stock_quantity }}
+              </span>
+            </div>
+          </article>
+        }
+      </div>
+
+      @if (pagination(); as p) {
+        @if (p.last_page > 1) {
+          <nav class="stock-pagination" aria-label="Pagination produits">
+            <p class="stock-pagination-summary ed-body-md">
+              {{ paginationSummary(p.from, p.to, p.total) }}
+            </p>
+            <div class="stock-pagination-controls">
+              <button
+                type="button"
+                class="stock-page-btn"
+                [disabled]="p.current_page <= 1"
+                (click)="goToPage(p.current_page - 1)"
+                aria-label="Page précédente"
+              >
+                ⟨
+              </button>
+
+              @if (p.current_page > 3) {
+                <button type="button" class="stock-page-btn" (click)="goToPage(1)">1</button>
+              }
+              @if (showLeadingEllipsis()) {
+                <span class="stock-page-ellipsis" aria-hidden="true">…</span>
+              }
+
+              @for (page of pageNumbers(); track page) {
+                @if (page === p.current_page) {
+                  <span class="stock-page-btn stock-page-btn--active" aria-current="page">{{ page }}</span>
+                } @else {
+                  <button type="button" class="stock-page-btn" (click)="goToPage(page)">{{ page }}</button>
+                }
+              }
+
+              @if (showTrailingEllipsis()) {
+                <span class="stock-page-ellipsis" aria-hidden="true">…</span>
+              }
+              @if (p.current_page < p.last_page - 2) {
+                <button type="button" class="stock-page-btn" (click)="goToPage(p.last_page)">
+                  {{ p.last_page }}
+                </button>
+              }
+
+              <button
+                type="button"
+                class="stock-page-btn"
+                [disabled]="p.current_page >= p.last_page"
+                (click)="goToPage(p.current_page + 1)"
+                aria-label="Page suivante"
+              >
+                ⟩
+              </button>
+            </div>
+          </nav>
+        }
+      }
+    }
+  </div>
+</ion-content>

@@ -1,0 +1,239 @@
+// EuroDental Mobile — design tokens (single source of truth)
+// https://ionicframework.com/docs/theming/advanced
+
+:root {
+  // ─── Brand & surfaces (Material-style primitives) ─────────────────────────
+  --ed-primary: #0058bd;
+  --ed-on-primary: #ffffff;
+  --ed-primary-container: #2771df;
+  --ed-primary-fixed: #d8e2ff;
+  --ed-primary-shade: #004494;
+  --ed-primary-dark: #004da6;
+  --ed-primary-tint: #1a69c4;
+  --ed-primary-light: #3b82f6;
+  --ed-primary-sky: #2cbee8;
+  --ed-primary-tint-surface: #eef2ff;
+
+  --ed-surface: #f9f9ff;
+  --ed-surface-container-lowest: #ffffff;
+  --ed-surface-container: #ecedf7;
+  --ed-surface-container-low: #f2f3fd;
+  --ed-surface-container-alt: #f3f3fa;
+  --ed-surface-container-highest: #e1e2eb;
+  --ed-surface-navy: #1e3a5f;
+
+  --ed-on-surface: #191b22;
+  --ed-on-surface-variant: #424753;
+  --ed-outline: #727785;
+  --ed-outline-variant: #c2c6d5;
+  --ed-outline-variant-alt: #c3c6d6;
+  --ed-outline-variant-input: #c4c6d2;
+
+  --ed-error: #ba1a1a;
+  --ed-on-error: #93000a;
+  --ed-error-container: #ffdad6;
+  --ed-secondary: #006e2c;
+  --ed-tertiary: #765700;
+  --ed-tertiary-fixed: #ffdea0;
+
+  // ─── Status & chips ───────────────────────────────────────────────────────
+  --ed-chip-error-bg: #fef2f2;
+  --ed-chip-error-text: #b91c1c;
+  --ed-chip-error-border: #fecaca;
+  --ed-chip-info-bg: #eff6ff;
+  --ed-chip-info-text: #1d4ed8;
+  --ed-chip-info-border: #bfdbfe;
+  --ed-chip-success-bg: #ecfdf5;
+  --ed-chip-success-text: #047857;
+  --ed-chip-success-border: #86efac;
+  --ed-chip-stock-high-bg: #ecfdf5;
+  --ed-chip-stock-high-text: #047857;
+  --ed-chip-stock-high-border: #047857;
+  --ed-chip-stock-mid-bg: #fefce8;
+  --ed-chip-stock-mid-text: #a16207;
+  --ed-chip-stock-mid-border: #ca8a04;
+  --ed-chip-stock-low-bg: #fef2f2;
+  --ed-chip-stock-low-text: #b91c1c;
+  --ed-chip-stock-low-border: #b91c1c;
+  --ed-chip-warning-bg: #ffedd5;
+  --ed-chip-warning-text: #c2410c;
+  --ed-chip-warning-border: #f97316;
+  --ed-chip-purple-bg: #f3e8ff;
+  --ed-chip-purple-text: #7e22ce;
+  --ed-chip-purple-border: #a855f7;
+  --ed-task-count-chip-bg: var(--ed-gradient-header-date);
+  --ed-task-count-chip-text: var(--ed-primary);
+  --ed-task-count-chip-border: var(--ed-primary-alpha-20);
+  --ed-tab-active-bg: var(--ed-primary-fixed);
+  --ed-tab-active-text: var(--ed-primary);
+  --ed-tab-active-border: var(--ed-surface-container-highest);
+  --ed-empty-hint-bg: var(--ed-primary-alpha-06);
+  --ed-empty-hint-border: var(--ed-primary-alpha-20);
+  --ed-empty-hint-text: var(--ed-primary);
+  --ed-leave-on-leave-bg: #eff6ff;
+  --ed-leave-on-leave-text: #1d4ed8;
+  --ed-leave-on-leave-border: #1d4ed8;
+  --ed-leave-completed-bg: #f3f4f6;
+  --ed-leave-completed-text: #374151;
+  --ed-leave-completed-border: #9ca3af;
+
+  --ed-success-container: rgba(0, 110, 44, 0.12);
+  --ed-error-muted-container: rgba(186, 26, 26, 0.1);
+  --ed-primary-muted-container: rgba(0, 88, 189, 0.1);
+  --ed-secondary-highlight: rgba(134, 248, 152, 0.35);
+
+  // ─── Action / progression buttons ─────────────────────────────────────────
+  --ed-action-warning: #f97316;
+  --ed-action-warning-active: #ea580c;
+  --ed-action-success: #22c55e;
+  --ed-action-success-active: #16a34a;
+  --ed-action-danger: #ef4444;
+  --ed-action-danger-active: #dc2626;
+
+  // ─── Gradients ────────────────────────────────────────────────────────────
+  --ed-gradient-cta: linear-gradient(135deg, #4338ca 0%, #0891b2 100%);
+  --ed-gradient-cta-active: linear-gradient(135deg, #3730a3 0%, #0e7490 100%);
+  --ed-gradient-cta-hover: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+  --ed-gradient-fab-warn: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  --ed-gradient-fab-primary: linear-gradient(135deg, #3b82f6 0%, #0058bd 100%);
+  --ed-gradient-fab-urgent: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
+  --ed-gradient-fab-deploy: linear-gradient(135deg, #3b82f6 0%, #2cbee8 100%);
+  --ed-deployment-card-bg: linear-gradient(135deg, #4338ca 0%, #7c3aed 100%);
+  --ed-deployment-chip-bg: rgba(255, 255, 255, 0.2);
+  --ed-deployment-chip-border: rgba(255, 255, 255, 0.3);
+  --ed-deployment-footer-border: rgba(255, 255, 255, 0.2);
+  --ed-deployment-progress-track: rgba(255, 255, 255, 0.2);
+  --ed-deployment-progress-bar: rgba(255, 255, 255, 0.65);
+  --ed-login-glow-primary: radial-gradient(
+    ellipse 80% 50% at 50% -10%,
+    var(--ed-primary-alpha-12) 0%,
+    transparent 55%
+  );
+  --ed-login-glow-accent: radial-gradient(
+    ellipse 60% 40% at 100% 80%,
+    var(--ed-gradient-cta-alpha-08) 0%,
+    transparent 50%
+  );
+  --ed-gradient-header-date: linear-gradient(
+    135deg,
+    var(--ed-primary-fixed) 0%,
+    var(--ed-primary-tint-surface) 100%
+  );
+
+  // ─── Alpha overlays (derived from brand / surfaces) ───────────────────────
+  --ed-primary-alpha-06: rgba(0, 88, 189, 0.06);
+  --ed-primary-alpha-08: rgba(0, 88, 189, 0.08);
+  --ed-primary-alpha-10: rgba(0, 88, 189, 0.1);
+  --ed-primary-alpha-12: rgba(0, 88, 189, 0.12);
+  --ed-primary-alpha-18: rgba(0, 88, 189, 0.18);
+  --ed-primary-alpha-20: rgba(0, 88, 189, 0.2);
+  --ed-primary-alpha-22: rgba(0, 88, 189, 0.22);
+  --ed-primary-alpha-25: rgba(0, 88, 189, 0.25);
+  --ed-primary-alpha-35: rgba(0, 88, 189, 0.35);
+  --ed-primary-alpha-45: rgba(0, 88, 189, 0.45);
+
+  --ed-secondary-alpha-12: rgba(0, 110, 44, 0.12);
+  --ed-secondary-alpha-25: rgba(0, 110, 44, 0.25);
+
+  --ed-on-surface-alpha-03: rgba(25, 27, 34, 0.03);
+  --ed-on-surface-alpha-04: rgba(25, 27, 34, 0.04);
+  --ed-on-surface-alpha-06: rgba(25, 27, 34, 0.06);
+  --ed-on-surface-alpha-08: rgba(25, 27, 34, 0.08);
+
+  --ed-scrim: rgba(25, 27, 34, 0.22);
+  --ed-side-menu-backdrop: rgba(25, 27, 34, 0.45);
+  --ed-shadow-overlay: rgba(0, 0, 0, 0.18);
+  --ed-shadow-sheet: rgba(0, 0, 0, 0.08);
+
+  /* Frosted glass — light tint (:root); dark tint in theme-dark.scss */
+  --ed-glass-surface: rgba(255, 255, 255, 0.72);
+  --ed-glass-surface-light: rgba(255, 255, 255, 0.45);
+  --ed-glass-surface-medium: rgba(255, 255, 255, 0.65);
+  --ed-glass-surface-soft: rgba(255, 255, 255, 0.55);
+  --ed-glass-surface-faint: rgba(255, 255, 255, 0.38);
+  --ed-glass-panel: rgba(255, 255, 255, 0.48);
+  --ed-glass-border: rgba(255, 255, 255, 0.55);
+  --ed-glass-blur: blur(40px) saturate(1.65);
+  --ed-glass-blur-sm: blur(20px) saturate(1.5);
+  --ed-glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  --ed-outline-variant-alpha-45: rgba(194, 198, 213, 0.45);
+
+  /* Modal sticky footer — translucent in light (blur does the frost); solid in theme-dark.scss */
+  --ed-modal-footer-surface: rgba(255, 255, 255, 0.18);
+  --ed-modal-footer-border-color: rgba(255, 255, 255, 0.42);
+
+  --ed-action-warning-shadow: rgba(249, 115, 22, 0.28);
+  --ed-action-warning-shadow-lg: rgba(234, 88, 12, 0.35);
+  --ed-action-success-shadow: rgba(34, 197, 94, 0.25);
+  --ed-action-danger-shadow: rgba(239, 68, 68, 0.22);
+  --ed-action-danger-shadow-lg: rgba(239, 68, 68, 0.4);
+  --ed-gradient-cta-shadow: rgba(67, 56, 202, 0.28);
+  --ed-gradient-cta-alpha-08: rgba(67, 56, 202, 0.08);
+  --ed-gradient-fab-primary-shadow: rgba(59, 130, 246, 0.35);
+
+  // ─── Spacing & radius ─────────────────────────────────────────────────────
+  --ed-radius-sm: 0.5rem;
+  --ed-radius-md: 1rem;
+  --ed-radius-lg: 1.5rem;
+  --ed-radius-xl: 2rem;
+  --ed-radius-card: 2rem;
+  --ed-radius-full: 9999px;
+
+  --ed-spacing-unit: 8px;
+  --ed-container-padding: 20px;
+  --ed-stack-sm: 8px;
+  --ed-stack-md: 16px;
+  --ed-stack-lg: 24px;
+  --ed-safe-bottom: 32px;
+  --ed-gutter: 16px;
+
+  // ─── Shell ────────────────────────────────────────────────────────────────
+  --ed-shell-height: 72px;
+  --ed-header-control-size: 48px;
+  --ed-header-control-radius: 16px;
+  --ed-label-font-size: 12px;
+  --ed-label-line-height: 16px;
+  --ed-label-letter-spacing: 0.05em;
+  --ed-tab-bar-radius: var(--ed-radius-xl);
+  --ed-tab-bar-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+  --ed-tab-bar-padding-top: 8px;
+  --ed-tab-bar-padding-bottom: 12px;
+  --ed-tab-bar-inner-height: 40px;
+  --ed-tab-bar-block-height: calc(
+    var(--ed-tab-bar-padding-top) + var(--ed-tab-bar-inner-height) + var(--ed-tab-bar-padding-bottom) +
+      env(safe-area-inset-bottom, 0px)
+  );
+  --ed-modal-body-footer-gap: 16px;
+
+  --ed-soft-ui-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.01);
+  --ed-shadow-primary-sm: 0 4px 14px var(--ed-primary-alpha-22);
+  --ed-shadow-primary-md: 0 4px 14px var(--ed-primary-alpha-20);
+  --ed-shadow-primary-xs: 0 1px 3px var(--ed-primary-alpha-25);
+  --ed-shadow-cta: 0 8px 28px var(--ed-gradient-cta-shadow);
+  --ed-shadow-fab: 0 8px 24px var(--ed-shadow-overlay);
+  --ed-shadow-card-inset: inset 0 2px 4px var(--ed-on-surface-alpha-04);
+  --ed-shadow-focus-ring: 0 0 0 3px var(--ed-primary-alpha-12);
+  --ed-shadow-focus-inset: inset 0 1px 2px var(--ed-on-surface-alpha-03);
+
+  --app-header-height: calc(var(--ed-shell-height) + env(safe-area-inset-top, 0px));
+  --ed-z-side-menu: 1100;
+
+  // ─── Ionic bridge (references tokens above) ───────────────────────────────
+  --ion-font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+
+  --ion-color-primary: var(--ed-primary);
+  --ion-color-primary-rgb: 0, 88, 189;
+  --ion-color-primary-contrast: var(--ed-on-primary);
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: var(--ed-primary-dark);
+  --ion-color-primary-tint: var(--ed-primary-tint);
+
+  --ion-background-color: var(--ed-surface);
+  --ion-text-color: var(--ed-on-surface);
+  --ion-card-background: var(--ed-surface-container-lowest);
+  --ion-toolbar-background: var(--ed-surface-container-lowest);
+  --ion-border-color: var(--ed-outline-variant);
+
+  --ion-tab-bar-background: var(--ed-surface-container-lowest);
+  --ion-tab-bar-border-color: var(--ed-surface-container-highest);
+}

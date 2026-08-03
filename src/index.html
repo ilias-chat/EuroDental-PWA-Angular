@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8" />
+  <title>EuroDental</title>
+  <base href="/" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="msapplication-tap-highlight" content="no" />
+  <meta name="theme-color" content="#0A1E3D" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+</head>
+
+<body>
+  <script>
+    (function () {
+      var key = 'ed_mobile_theme';
+      var stored = localStorage.getItem(key);
+      var dark =
+        stored === 'dark' ||
+        (stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if (dark) {
+        document.documentElement.setAttribute('data-ed-theme', 'dark');
+        document.documentElement.style.colorScheme = 'dark';
+      } else {
+        document.documentElement.setAttribute('data-ed-theme', 'light');
+      }
+    })();
+  </script>
+  <app-root></app-root>
+</body>
+
+</html>

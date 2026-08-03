@@ -1,0 +1,7 @@
+// Shared horizontal alignment for header, page content, and tab bar
+@mixin shell-inner {
+  width: 100%;
+  max-width: 560px;
+  margin-inline: auto;
+  padding-inline: var(--ed-container-padding);
+}

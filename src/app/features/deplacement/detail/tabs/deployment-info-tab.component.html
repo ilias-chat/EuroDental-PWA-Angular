@@ -1,0 +1,100 @@
+@if (f.deployment(); as dep) {
+  <div class="ed-page ed-page-stack tab-panel">
+    <div class="deploy-hero-card">
+      <h2 class="deploy-hero-card__title">{{ dep.title }}</h2>
+      <div class="deploy-hero-card__meta">
+        @if (dep.deployment_date) {
+          <span>
+            <i class="fa-solid fa-calendar" aria-hidden="true"></i>
+            {{ formatDeploymentDate(dep.deployment_date) }}
+          </span>
+        }
+        @if (dep.city_name) {
+          <span>
+            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+            {{ dep.city_name }}
+          </span>
+        }
+      </div>
+      @if (dep.tasks_count > 0) {
+        <div class="deploy-progress deploy-progress--hero">
+          <div class="deploy-progress__track">
+            <div
+              class="deploy-progress__bar"
+              [class.deploy-progress__bar--done]="dep.completion_percentage === 100"
+              [style.width.%]="dep.completion_percentage ?? 0"
+            ></div>
+          </div>
+          <div class="deploy-progress__labels">
+            <span>{{ dep.completion_percentage ?? 0 }}% terminé</span>
+            <span>{{ dep.completed_tasks_count ?? 0 }}/{{ dep.tasks_count }}</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (dep.description) {
+      <section class="ed-card deplacement-section-card">
+        <h3 class="section-label ed-label">Description</h3>
+        <p class="ed-body-md deplacement-description">{{ dep.description }}</p>
+      </section>
+    }
+
+    <section class="ed-card deplacement-section-card">
+      <h3 class="section-label ed-label">Équipe</h3>
+      @if (dep.responsible_name) {
+        <div class="deplacement-member-row">
+          <app-user-avatar
+            [name]="dep.responsible_name"
+            [image]="dep.responsible_image ?? null"
+            size="md"
+          />
+          <div>
+            <p class="deplacement-member-name">{{ dep.responsible_name }}</p>
+            <p class="ed-body-md">Responsable</p>
+          </div>
+        </div>
+      }
+      @if (dep.driver_name && dep.driver_id !== dep.responsible_id) {
+        <div class="deplacement-member-row">
+          <app-user-avatar
+            [name]="dep.driver_name"
+            [image]="dep.driver_image ?? null"
+            size="md"
+          />
+          <div>
+            <p class="deplacement-member-name">{{ dep.driver_name }}</p>
+            <p class="ed-body-md">Chauffeur</p>
+          </div>
+        </div>
+      }
+      @let teamMembers = listedTeamMembers(dep);
+      @if (
+        teamMembers.length &&
+        (dep.responsible_name || (dep.driver_name && dep.driver_id !== dep.responsible_id))
+      ) {
+        <hr class="deplacement-member-divider" aria-hidden="true" />
+      }
+      @for (member of teamMembers; track member.id) {
+        <div class="deplacement-member-row">
+          <app-user-avatar [name]="member.name" [image]="member.image" size="md" />
+          <div>
+            <p class="deplacement-member-name">{{ member.name }}</p>
+            <p class="ed-body-md">Membre</p>
+          </div>
+        </div>
+      }
+    </section>
+
+    @if (dep.hosters_detail?.length) {
+      <section class="ed-card deplacement-section-card">
+        <h3 class="section-label ed-label">Hébergeurs</h3>
+        <div class="deplacement-team-avatars">
+          @for (host of dep.hosters_detail; track host.id) {
+            <app-user-avatar [name]="host.name" [image]="host.image" size="sm" />
+          }
+        </div>
+      </section>
+    }
+  </div>
+}

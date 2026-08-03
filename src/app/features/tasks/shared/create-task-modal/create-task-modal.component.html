@@ -1,0 +1,346 @@
+<ion-modal
+  class="create-task-modal"
+  [isOpen]="isOpen()"
+  (didDismiss)="close()"
+>
+  <ng-template>
+    <div class="services-picker-shell">
+      <div class="services-picker-handle" aria-hidden="true"></div>
+      <header class="services-picker-header">
+        <h2 class="services-picker-title">Nouvelle tâche</h2>
+        <button type="button" class="services-picker-close" (click)="close()" aria-label="Fermer">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="services-picker-scroll">
+        <div class="payment-modal-form">
+          <div class="payment-modal-field">
+            <label class="payment-modal-label ed-label" for="create-task-name">Nom de la tâche</label>
+            <input
+              id="create-task-name"
+              class="payment-modal-control"
+              required
+              placeholder="Ex: Réparation équipement"
+              [ngModel]="f.form().task_name"
+              (ngModelChange)="f.updateField('task_name', $event)"
+              (click)="$event.stopPropagation()"
+            />
+          </div>
+
+          <div class="payment-modal-field">
+            <label class="payment-modal-label ed-label" for="create-task-type">Type</label>
+            <select
+              id="create-task-type"
+              class="payment-modal-control"
+              [ngModel]="f.form().task_type"
+              (ngModelChange)="f.updateField('task_type', $event)"
+              (click)="$event.stopPropagation()"
+            >
+              <option value="">Sélectionner…</option>
+              @for (type of f.taskTypes(); track type.id) {
+                <option [value]="type.name">{{ type.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="payment-modal-field">
+            <label class="payment-modal-label ed-label" for="create-task-date">Date</label>
+            <input
+              id="create-task-date"
+              type="date"
+              class="payment-modal-control"
+              [ngModel]="f.form().task_date"
+              (ngModelChange)="f.updateField('task_date', $event)"
+              (click)="$event.stopPropagation()"
+            />
+          </div>
+
+          @if (f.isDeploymentContext()) {
+            <div
+              class="payment-modal-field create-task-picker-field"
+              [class.create-task-picker-field--open]="f.techDropdownOpen()"
+            >
+              <label class="payment-modal-label ed-label">Utilisateur</label>
+              <div class="create-task-picker">
+                <button
+                  type="button"
+                  class="create-task-picker__trigger"
+                  (click)="f.toggleTechDropdown(); $event.stopPropagation()"
+                  [attr.aria-expanded]="f.techDropdownOpen()"
+                >
+                  <img
+                    [src]="f.userAvatar(f.selectedTechnician())"
+                    alt=""
+                    class="create-task-picker__avatar"
+                    (error)="f.selectedTechnician() && f.onUserAvatarError(f.selectedTechnician()!)"
+                  />
+                  <span class="create-task-picker__label">
+                    {{ f.selectedTechnician()?.name ?? 'Sélectionner un utilisateur' }}
+                  </span>
+                  <i
+                    class="fa-solid fa-chevron-down create-task-picker__chevron"
+                    [class.create-task-picker__chevron--open]="f.techDropdownOpen()"
+                    aria-hidden="true"
+                  ></i>
+                </button>
+                @if (f.techDropdownOpen()) {
+                  <div class="create-task-picker__panel">
+                    <div class="create-task-picker__search-wrap">
+                      <input
+                        type="text"
+                        class="create-task-picker__search"
+                        placeholder="Rechercher un utilisateur…"
+                        [ngModel]="f.techSearchQuery()"
+                        (ngModelChange)="f.techSearchQuery.set($event)"
+                        (click)="$event.stopPropagation()"
+                      />
+                    </div>
+                    <div class="create-task-picker__list">
+                      @for (user of f.filteredTechnicians(); track user.id) {
+                        <button type="button" class="create-task-picker__option" (click)="f.pickTechnician(user)">
+                          <img
+                            [src]="f.userAvatar(user)"
+                            alt=""
+                            class="create-task-picker__avatar"
+                            (error)="f.onUserAvatarError(user)"
+                          />
+                          <span>{{ user.name }}</span>
+                        </button>
+                      } @empty {
+                        <p class="create-task-picker__empty ed-body-md">Aucun membre trouvé</p>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+              <p class="create-task-field-hint ed-body-md">Seuls les membres de l'équipe du déplacement</p>
+            </div>
+          }
+
+          <div
+            class="payment-modal-field create-task-picker-field"
+            [class.create-task-picker-field--open]="f.clientDropdownOpen()"
+          >
+            <label class="payment-modal-label ed-label">Client</label>
+            <div class="create-task-picker">
+              <button
+                type="button"
+                class="create-task-picker__trigger"
+                (click)="f.toggleClientDropdown(); $event.stopPropagation()"
+                [attr.aria-expanded]="f.clientDropdownOpen()"
+              >
+                <img
+                  [src]="f.clientAvatar(f.selectedClient())"
+                  alt=""
+                  class="create-task-picker__avatar"
+                />
+                <span class="create-task-picker__label">
+                  {{ f.clientDisplayName(f.selectedClient()) }}
+                </span>
+                <i
+                  class="fa-solid fa-chevron-down create-task-picker__chevron"
+                  [class.create-task-picker__chevron--open]="f.clientDropdownOpen()"
+                  aria-hidden="true"
+                ></i>
+              </button>
+              @if (f.clientDropdownOpen()) {
+                <div class="create-task-picker__panel">
+                  <div class="create-task-picker__search-wrap">
+                    <input
+                      type="text"
+                      class="create-task-picker__search"
+                      placeholder="Rechercher un client…"
+                      [ngModel]="f.clientSearchQuery()"
+                      (ngModelChange)="f.onClientSearchInput($event)"
+                      (click)="$event.stopPropagation()"
+                    />
+                  </div>
+                  <div class="create-task-picker__list">
+                    @if (f.clientLoading() && !f.clientResults().length) {
+                      <p class="create-task-picker__empty ed-body-md">Chargement…</p>
+                    } @else if (!f.clientLoading() && !f.clientResults().length) {
+                      <p class="create-task-picker__empty ed-body-md">Aucun client trouvé</p>
+                    } @else {
+                      @for (client of f.clientResults(); track client.id) {
+                        <button type="button" class="create-task-picker__option" (click)="f.pickClient(client)">
+                          <img [src]="f.clientAvatar(client)" alt="" class="create-task-picker__avatar" />
+                          <span class="create-task-picker__option-text">
+                            <span class="create-task-picker__option-name">{{ f.clientDisplayName(client) }}</span>
+                            @if (client.city) {
+                              <span class="create-task-picker__option-meta ed-body-md">{{ client.city }}</span>
+                            }
+                          </span>
+                        </button>
+                      }
+                    }
+                  </div>
+                  @if (f.clientHasMore()) {
+                    <div class="create-task-picker__footer">
+                      <button
+                        type="button"
+                        class="create-task-picker__load-more"
+                        [disabled]="f.clientLoading()"
+                        (click)="f.loadMoreClients()"
+                      >
+                        @if (f.clientLoading()) {
+                          Chargement…
+                        } @else {
+                          Charger plus
+                        }
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+            @if (f.selectedClient()) {
+              <button type="button" class="create-task-clear-link" (click)="f.clearClient()">
+                Retirer le client
+              </button>
+            }
+          </div>
+
+          @if (f.isDeploymentContext()) {
+            <div class="payment-modal-field" (click)="$event.stopPropagation()">
+              <label class="payment-modal-label ed-label">Utilisateurs d'aide</label>
+              <div class="create-task-helping-box">
+                @if (f.helpingUsers().length) {
+                  <ul class="create-task-helping-list">
+                    @for (user of f.helpingUsers(); track user.id) {
+                      <li class="create-task-helping-item">
+                        <div class="create-task-helping-item__lead">
+                          <img
+                            [src]="f.userAvatar(user)"
+                            alt=""
+                            class="create-task-picker__avatar"
+                            (error)="f.onUserAvatarError(user)"
+                          />
+                          <span>{{ user.name }}</span>
+                        </div>
+                        <button
+                          type="button"
+                          class="create-task-helping-item__remove"
+                          (click)="f.removeHelpingUser(user.id)"
+                          aria-label="Retirer"
+                        >
+                          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                        </button>
+                      </li>
+                    }
+                  </ul>
+                }
+
+                @if (!f.showHelpingPicker()) {
+                  <button type="button" class="create-task-helping-add" (click)="f.openHelpingPicker()">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                    Ajouter un utilisateur
+                  </button>
+                } @else {
+                  <div class="create-task-picker">
+                    <button
+                      type="button"
+                      class="create-task-picker__trigger create-task-picker__trigger--compact"
+                      (click)="f.toggleHelpingDropdown()"
+                      [attr.aria-expanded]="f.helpingDropdownOpen()"
+                    >
+                      <img
+                        [src]="f.userAvatar(f.selectedHelpingUser())"
+                        alt=""
+                        class="create-task-picker__avatar"
+                        (error)="f.selectedHelpingUser() && f.onUserAvatarError(f.selectedHelpingUser()!)"
+                      />
+                      <span class="create-task-picker__label">
+                        {{ f.selectedHelpingUser()?.name ?? 'Sélectionner un utilisateur' }}
+                      </span>
+                      <i
+                        class="fa-solid fa-chevron-down create-task-picker__chevron"
+                        [class.create-task-picker__chevron--open]="f.helpingDropdownOpen()"
+                        aria-hidden="true"
+                      ></i>
+                    </button>
+                    @if (f.helpingDropdownOpen()) {
+                      <div class="create-task-picker__panel">
+                        <div class="create-task-picker__search-wrap">
+                          <input
+                            type="text"
+                            class="create-task-picker__search"
+                            placeholder="Rechercher un utilisateur…"
+                            [ngModel]="f.helpingSearchQuery()"
+                            (ngModelChange)="f.helpingSearchQuery.set($event)"
+                            (click)="$event.stopPropagation()"
+                          />
+                        </div>
+                        <div class="create-task-picker__list">
+                          @for (user of f.availableHelpingUsers(); track user.id) {
+                            <button
+                              type="button"
+                              class="create-task-picker__option"
+                              (click)="f.selectedHelpingUser.set(user); f.helpingDropdownOpen.set(false)"
+                            >
+                              <img
+                            [src]="f.userAvatar(user)"
+                            alt=""
+                            class="create-task-picker__avatar"
+                            (error)="f.onUserAvatarError(user)"
+                          />
+                              <span>{{ user.name }}</span>
+                            </button>
+                          } @empty {
+                            <p class="create-task-picker__empty ed-body-md">Aucun membre disponible</p>
+                          }
+                        </div>
+                      </div>
+                    }
+                    <div class="create-task-helping-actions">
+                      <button
+                        type="button"
+                        class="create-task-helping-actions__confirm"
+                        [disabled]="!f.selectedHelpingUser()"
+                        (click)="f.addHelpingUser()"
+                      >
+                        Ajouter
+                      </button>
+                      <button type="button" class="create-task-helping-actions__cancel" (click)="f.cancelHelpingPicker()">
+                        Annuler
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+              <p class="create-task-field-hint ed-body-md">Seuls les membres de l'équipe du déplacement</p>
+            </div>
+          }
+
+          <div class="payment-modal-field">
+            <label class="payment-modal-label ed-label" for="create-task-desc">Description</label>
+            <textarea
+              id="create-task-desc"
+              class="payment-modal-control create-task-textarea"
+              rows="3"
+              placeholder="Description optionnelle…"
+              [ngModel]="f.form().description"
+              (ngModelChange)="f.updateField('description', $event)"
+              (click)="$event.stopPropagation()"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <footer class="services-picker-footer">
+        <button
+          type="button"
+          class="payment-modal-save"
+          [disabled]="f.creating()"
+          (click)="submit()"
+        >
+          @if (f.creating()) {
+            <ion-spinner name="crescent"></ion-spinner>
+          } @else {
+            Créer la tâche
+          }
+        </button>
+      </footer>
+    </div>
+  </ng-template>
+</ion-modal>

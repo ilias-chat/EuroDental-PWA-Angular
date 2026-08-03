@@ -1,0 +1,453 @@
+﻿@use '../../../../../theme/elevation';
+
+// Services picker G�� modal renders in overlay; shell uses explicit vh + flex footer
+ion-modal.services-picker-modal {
+  --height: 85vh;
+  --background: transparent;
+  align-items: flex-end;
+
+  &::part(backdrop) {
+    background: var(--ed-scrim);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  &::part(content) {
+    position: absolute;
+    bottom: 0;
+    top: auto;
+    left: 0;
+    right: 0;
+    margin: 0;
+    height: 85vh;
+    max-height: 85vh;
+    overflow: hidden;
+    border-radius: var(--ed-radius-xl, 2rem) var(--ed-radius-xl, 2rem) 0 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background: var(--ed-glass-panel);
+    backdrop-filter: var(--ed-glass-blur);
+    -webkit-backdrop-filter: var(--ed-glass-blur);
+    border-top: 1px solid var(--ed-glass-border);
+    box-shadow: var(--ed-glass-highlight, inset 0 1px 0 rgba(255, 255, 255, 0.35)), var(--ed-shadow-fab);
+  }
+
+  .ion-page,
+  .ion-delegate-host {
+    height: 85vh;
+    max-height: 85vh;
+    overflow: hidden;
+    --background: transparent;
+    background: transparent !important;
+  }
+
+  .services-picker-shell {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 85vh !important;
+    max-height: 85vh !important;
+    overflow: hidden !important;
+    box-sizing: border-box;
+    background: transparent;
+  }
+
+  .services-picker-scroll {
+    flex: 1 1 auto;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .services-picker-footer {
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 10;
+    display: block !important;
+    visibility: visible !important;
+  }
+
+  .ed-card {
+    @include elevation.ed-elevated-surface;
+  }
+
+  .service-picker-card {
+    border-radius: var(--ed-radius-card, 2rem);
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 8px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+
+    &.service-picker-card--selected {
+      border-color: var(--ed-primary-alpha-35);
+      background: var(--ed-primary-fixed);
+      box-shadow: var(--ed-soft-ui-shadow);
+    }
+  }
+}
+
+ion-modal.propose-service-modal {
+  --height: auto;
+
+  &::part(content) {
+    height: auto;
+    max-height: 55vh;
+  }
+
+  .ion-page,
+  .ion-delegate-host {
+    height: auto;
+    max-height: 55vh;
+  }
+
+  .services-picker-shell {
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: 260px !important;
+    max-height: 55vh !important;
+    overflow: hidden !important;
+  }
+
+  .propose-service-scroll {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    padding: 4px var(--ed-container-padding) 4px !important;
+  }
+
+  .propose-service-label {
+    display: block;
+    margin: 0 0 8px;
+    font-size: 12px;
+    letter-spacing: var(--ed-label-letter-spacing, 0.05em);
+    text-transform: uppercase;
+    color: var(--ed-on-surface-variant);
+  }
+
+  .propose-service-input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+ion-modal.client-payment-modal,
+ion-modal.admin-delivery-modal,
+ion-modal.delivery-received-modal {
+  --height: auto;
+
+  &::part(content) {
+    height: auto;
+    max-height: 64vh;
+  }
+
+  .ion-page,
+  .ion-delegate-host {
+    height: auto;
+    max-height: 64vh;
+  }
+
+  .services-picker-shell {
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: 300px !important;
+    max-height: 64vh !important;
+    overflow: hidden !important;
+  }
+
+  .services-picker-scroll,
+  .payment-modal-scroll {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+  }
+
+  .services-picker-header {
+    align-items: flex-start;
+    padding-bottom: 4px;
+  }
+
+  .services-picker-title {
+    padding-right: 44px;
+    line-height: 1.3;
+  }
+
+  .payment-modal-subtitle {
+    margin: 8px 0 0;
+    padding-right: 8px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--ed-outline);
+  }
+
+  .payment-modal-scroll {
+    padding: 16px var(--ed-container-padding) 4px !important;
+  }
+
+  .payment-modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .payment-modal-field {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .payment-modal-label {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ed-on-surface-variant);
+  }
+
+  .payment-modal-control {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--ed-outline-variant);
+    border-radius: var(--ed-radius-md, 1rem);
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--ed-on-surface);
+    background: var(--ed-surface-container-lowest);
+  }
+
+  .payment-modal-control:focus {
+    outline: none;
+    border-color: var(--ed-primary);
+    box-shadow: 0 0 0 2px var(--ed-primary-alpha-18);
+  }
+
+  .payment-modal-control--select {
+    appearance: none;
+    padding-right: 36px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23727785' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+  }
+
+  .payment-modal-info-badge {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 10px;
+    align-self: stretch;
+    margin: 0;
+    padding: 12px 14px;
+    border-radius: var(--ed-radius-full);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--ed-primary);
+    background: var(--ed-primary-alpha-10);
+    border: 1px solid var(--ed-primary-alpha-22);
+  }
+
+  .payment-modal-info-badge i {
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-size: 14px;
+  }
+
+  .payment-modal-save {
+    width: 100%;
+    min-height: 52px;
+    padding: 14px 24px;
+    border: none;
+    border-radius: var(--ed-radius-full);
+    background: var(--ed-primary);
+    background-image: none;
+    color: var(--ed-on-primary);
+    font-family: 'Plus Jakarta Sans', 'Be Vietnam Pro', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 14px var(--ed-primary-alpha-22);
+  }
+
+  .payment-modal-save:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+}
+
+ion-modal.delivery-received-modal {
+  .services-picker-shell {
+    min-height: 280px !important;
+  }
+}
+
+ion-modal.proposition-details-modal {
+  --height: auto;
+
+  &::part(content) {
+    height: auto;
+    max-height: 65vh;
+  }
+
+  .ion-page,
+  .ion-delegate-host {
+    height: auto;
+    max-height: 65vh;
+  }
+
+  .services-picker-shell {
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    max-height: 65vh !important;
+    overflow: hidden !important;
+  }
+
+  .services-picker-footer {
+    display: none !important;
+  }
+
+  .proposition-details-scroll {
+    flex: 0 1 auto !important;
+    overflow-y: auto !important;
+    padding: 4px var(--ed-container-padding)
+      calc(20px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .proposition-details-card {
+    margin: 0;
+    padding: 16px 18px;
+    @include elevation.ed-elevated-surface;
+  }
+
+  .proposition-details-meta {
+    margin: 0 0 10px;
+
+    strong {
+      font-weight: 700;
+      color: var(--ed-on-surface);
+    }
+  }
+
+  .proposition-details-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 8px 12px;
+    border-radius: var(--ed-radius-full);
+    background: var(--ed-tertiary-fixed);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ed-tertiary);
+
+    i {
+      font-size: 14px;
+    }
+  }
+}
+
+ion-modal.description-edit-modal {
+  &::part(content) {
+    height: 85vh;
+    max-height: 85vh;
+  }
+
+  .ion-page,
+  .ion-delegate-host {
+    height: 85vh;
+    max-height: 85vh;
+  }
+
+  .services-picker-shell {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 85vh !important;
+    max-height: 85vh !important;
+    overflow: hidden !important;
+  }
+
+  .description-edit-toolbar {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 20px var(--ed-container-padding) 0;
+    padding: 12px 16px;
+    border: 1px solid var(--ed-outline-variant-input);
+    border-radius: var(--ed-radius-lg, 1.5rem);
+    background: var(--ed-surface-container-lowest);
+    box-shadow: var(--ed-soft-ui-shadow);
+  }
+
+  .description-toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--ed-outline-variant-input);
+    border-radius: var(--ed-radius-md, 12px);
+    background: var(--ed-surface-container-lowest);
+    color: var(--ed-on-surface);
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: var(--ed-surface-container-alt);
+    }
+  }
+
+  .description-toolbar-hint {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--ed-on-surface-variant);
+    white-space: nowrap;
+  }
+
+  .description-edit-scroll {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    padding: 12px var(--ed-container-padding) 4px !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .description-edit-textarea {
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    height: 100%;
+    margin: 0;
+    padding: 16px;
+    border: 1px solid var(--ed-outline-variant-input);
+    border-radius: var(--ed-radius-lg, 1.5rem);
+    outline: none;
+    resize: none;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ed-on-surface);
+    background: var(--ed-surface-container-lowest);
+    box-sizing: border-box;
+    font-family: inherit;
+    box-shadow: var(--ed-soft-ui-shadow);
+
+    &:focus {
+      border-color: var(--ed-primary-alpha-45);
+      box-shadow: 0 0 0 3px var(--ed-primary-alpha-12);
+    }
+  }
+}
+

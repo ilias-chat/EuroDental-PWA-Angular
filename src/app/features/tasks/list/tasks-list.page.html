@@ -1,0 +1,309 @@
+<ion-content
+  [fullscreen]="true"
+  class="tasks-page ed-content-padded"
+  [class.tasks-page--with-past-fab]="pastTasksCount() > 0"
+  [class.tasks-page--with-create-fab]="canCreateTasks()"
+>
+  <ion-refresher slot="fixed" (ionRefresh)="load($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="ed-page ed-page-stack">
+    @if (viewMode() === 'day') {
+      <header class="page-header">
+        <div class="page-header-text">
+          <h1 class="ed-headline">
+            {{ auth.canAccessTasksAdmin() ? 'Tâches' : 'Mes Tâches' }}
+          </h1>
+          <p class="date-label">{{ dayHeaderDate() }}</p>
+        </div>
+        @if (!loading()) {
+          <span class="task-count-chip">
+            <i class="fa-solid fa-clipboard-list"></i>
+            {{ taskCountLabel(filteredTasks().length) }}
+          </span>
+        }
+      </header>
+    }
+
+    @if (error()) {
+      <div class="error-banner" role="alert">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    @if (viewMode() === 'month') {
+      <section class="month-view" aria-label="Vue mensuelle">
+        <div class="month-nav">
+          <button type="button" class="month-nav-btn" (click)="previousMonth()" aria-label="Mois précédent">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <div class="month-nav-center">
+            <h2 class="month-title">{{ monthHeaderLabel() }}</h2>
+            <p class="month-subtitle">{{ taskCountLabel(monthTaskCount()) }} ce mois</p>
+          </div>
+          <button type="button" class="month-nav-btn" (click)="nextMonth()" aria-label="Mois suivant">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+
+        @if (loading()) {
+          <div class="calendar-loading">
+            <ion-spinner name="crescent"></ion-spinner>
+          </div>
+        } @else {
+          <div class="calendar-grid-wrap ed-card">
+            <div class="calendar-weekdays">
+              @for (label of weekdayLabels; track label) {
+                <span class="weekday-label">{{ label }}</span>
+              }
+            </div>
+            <div class="calendar-days">
+              @for (day of calendarDays(); track day.date) {
+                <button
+                  type="button"
+                  class="calendar-day"
+                  [class.calendar-day--muted]="!day.isCurrentMonth"
+                  [class.calendar-day--today]="day.isToday"
+                  [disabled]="!day.isCurrentMonth"
+                  (click)="selectDay(day.date)"
+                >
+                  <span class="calendar-day-num">{{ day.dayNumber }}</span>
+                  @if (tasksForDayCell(day).length) {
+                    <span class="calendar-dots" aria-hidden="true">
+                      @for (task of tasksForDayCell(day); track task.id) {
+                        <span
+                          class="calendar-dot"
+                          [style.background-color]="statusDotColor(task.status)"
+                          [title]="task.task_name + ' — ' + task.status"
+                        ></span>
+                      }
+                    </span>
+                  }
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="calendar-legend ed-card">
+            <div class="legend-items">
+              <span class="legend-item"><span class="legend-dot" style="background:#ef4444"></span>En attente</span>
+              <span class="legend-item"><span class="legend-dot" style="background:#f97316"></span>En route</span>
+              <span class="legend-item"><span class="legend-dot" style="background:#eab308"></span>En cours</span>
+              <span class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>Terminée</span>
+              <span class="legend-item"><span class="legend-dot" style="background:#a855f7"></span>Annulée</span>
+            </div>
+          </div>
+        }
+      </section>
+    } @else {
+      @if (loading()) {
+        <div class="task-list">
+          @for (i of [1, 2, 3]; track i) {
+            <div class="task-card skeleton-card" aria-hidden="true">
+              <div class="skeleton-top">
+                <div class="skeleton-line narrow"></div>
+                <div class="skeleton-badge"></div>
+              </div>
+              <div class="skeleton-line wide"></div>
+              <div class="skeleton-bottom">
+                <div class="skeleton-avatars"></div>
+                <div class="skeleton-line time"></div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else if (filteredTasks().length === 0) {
+        <div class="ed-card center-state empty">
+          <div class="empty-icon-wrap">
+            <i class="fa-solid fa-list-check"></i>
+          </div>
+          <h2 class="ed-headline-md">Aucune tâche</h2>
+          <p class="ed-body-md">Vous n'avez aucune tâche programmée pour cette date.</p>
+          <p class="empty-hint ed-body-md">
+            <i class="fa-solid fa-circle-info"></i>
+            Utilisez le calendrier pour naviguer vers d'autres dates.
+          </p>
+        </div>
+      } @else {
+        <div class="task-list">
+          @for (task of filteredTasks(); track task.id) {
+            <article class="task-card" (click)="openTask(task)">
+              <div class="task-card-inner">
+                <div class="task-card-top">
+                  <span class="task-card-type ed-type-label">{{ taskTypeLabel(task.task_type) }}</span>
+                  <app-task-status-badge [status]="task.status" [urgent]="task.urgent" />
+                </div>
+
+                <h3 class="task-card-title">{{ task.task_name }}</h3>
+
+                <div class="task-card-bottom">
+                  <div class="team-stack">
+                    @if (teamMembers(task).length === 0) {
+                      <span class="no-team ed-body-md">Aucun technicien</span>
+                    } @else {
+                      @for (member of visibleTeam(task); track member.id) {
+                        <app-user-avatar
+                          [name]="member.name"
+                          [image]="member.image"
+                          [highlight]="isTeamMemberHighlighted(task, member.id)"
+                          size="sm"
+                        />
+                      }
+                      @if (extraTeamCount(task) > 0) {
+                        <span class="team-overflow">+{{ extraTeamCount(task) }}</span>
+                      }
+                    }
+                  </div>
+
+                  @if (formatTimeRange(task); as timeRange) {
+                    <span class="task-time">
+                      <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                      {{ timeRange }}
+                    </span>
+                  }
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  @if (pastTasksCount() > 0) {
+    <button
+      type="button"
+      class="past-tasks-fab"
+      (click)="openPastTasksModal()"
+      [attr.aria-label]="'Tâches en retard (' + pastTasksCount() + ')'"
+    >
+      {{ pastTasksCount() }}
+    </button>
+  }
+
+  @if (canCreateTasks()) {
+    <button
+      type="button"
+      class="task-create-fab"
+      (click)="openCreateTaskModal()"
+      aria-label="Nouvelle tâche"
+    >
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
+    </button>
+  }
+
+  <button
+    type="button"
+    class="calendar-fab"
+    (click)="toggleView()"
+    [attr.aria-label]="viewMode() === 'day' ? 'Afficher le calendrier mensuel' : 'Afficher la vue du jour'"
+  >
+    <i class="fa-solid fa-calendar"></i>
+  </button>
+</ion-content>
+
+<ion-modal
+  class="services-picker-modal past-tasks-modal"
+  [isOpen]="showPastTasksModal()"
+  (didDismiss)="onPastTasksModalDismiss()"
+>
+  <ng-template>
+    <div class="services-picker-shell past-tasks-shell">
+      <div class="services-picker-handle" aria-hidden="true"></div>
+
+      <header class="services-picker-header">
+        <h2 class="services-picker-title">Tâches en retard</h2>
+        <button
+          type="button"
+          class="services-picker-close"
+          (click)="closePastTasksModal()"
+          aria-label="Fermer"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="past-tasks-scroll">
+        @if (loadingPastTasks()) {
+          <div class="task-list">
+            @for (i of [1, 2, 3]; track i) {
+              <div class="task-card skeleton-card" aria-hidden="true">
+                <div class="skeleton-top">
+                  <div class="skeleton-line narrow"></div>
+                  <div class="skeleton-badge"></div>
+                </div>
+                <div class="skeleton-line wide"></div>
+                <div class="skeleton-bottom">
+                  <div class="skeleton-avatars"></div>
+                  <div class="skeleton-line time"></div>
+                </div>
+              </div>
+            }
+          </div>
+        } @else if (pastTasks().length === 0) {
+          <div class="past-tasks-empty">
+            <div class="past-tasks-empty-icon">
+              <i class="fa-solid fa-check-circle" aria-hidden="true"></i>
+            </div>
+            <h3 class="ed-headline-md">Aucune tâche en retard</h3>
+            <p class="ed-body-md">Toutes vos tâches sont à jour !</p>
+          </div>
+        } @else {
+          <div class="task-list">
+            @for (task of pastTasks(); track task.id) {
+              <article class="task-card" (click)="openPastTask(task)">
+                <div class="task-card-inner">
+                  <div class="task-card-top">
+                    <span class="task-card-type ed-type-label">{{ taskTypeLabel(task.task_type) }}</span>
+                    <app-task-status-badge [status]="task.status" [urgent]="task.urgent" />
+                  </div>
+
+                  <h3 class="task-card-title">{{ task.task_name }}</h3>
+
+                  <div class="task-card-bottom">
+                    <div class="team-stack">
+                      @if (task.technician) {
+                        <app-user-avatar
+                          [name]="task.technician.name"
+                          [image]="task.technician.image"
+                          [highlight]="task.is_main_technician"
+                        />
+                      } @else {
+                        <span class="no-team ed-body-md">Aucun technicien</span>
+                      }
+                    </div>
+
+                    @if (task.helping_users.length) {
+                      <div class="team-stack task-card-helpers">
+                        @for (helper of visibleHelpers(task); track helper.id) {
+                          <app-user-avatar
+                            [name]="helper.name"
+                            [image]="helper.image"
+                            [highlight]="isTeamMemberHighlighted(task, helper.id)"
+                          />
+                        }
+                        @if (extraHelpersCount(task) > 0) {
+                          <span class="team-overflow">+{{ extraHelpersCount(task) }}</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<app-create-task-modal
+  [isOpen]="showCreateTaskModal()"
+  (isOpenChange)="showCreateTaskModal.set($event)"
+  [defaultDate]="formatDateKey(selectedDate())"
+  [deploymentId]="null"
+  (created)="onTaskCreated()"
+/>

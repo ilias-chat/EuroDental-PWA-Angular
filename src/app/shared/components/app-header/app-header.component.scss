@@ -1,0 +1,142 @@
+﻿@use '../../../../theme/elevation';
+@use '../../../../theme/shell';
+
+$header-control-size: var(--ed-header-control-size, 48px);
+$header-control-radius: 50%;
+
+@mixin header-elevated-control {
+  border: 1px solid var(--ed-surface-container-highest);
+  box-shadow: elevation.$ed-soft-ui-shadow;
+  background: var(--ed-surface-container-lowest);
+}
+
+.app-header {
+  position: relative;
+  flex-shrink: 0;
+  z-index: 10;
+  margin: 0;
+  padding: 0;
+}
+
+.app-header-toolbar {
+  --background: transparent;
+  --border-width: 0;
+  --min-height: var(--ed-shell-height);
+  // Safe-area lives on .header-inner only (toolbar host padding is zeroed in global.scss).
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+.header-inner {
+  @include shell.shell-inner;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  gap: var(--ed-stack-sm);
+  padding-top: env(safe-area-inset-top, 0px);
+  min-height: calc(var(--ed-shell-height) + env(safe-area-inset-top, 0px));
+}
+
+.header-start {
+  display: flex;
+  align-items: center;
+  gap: var(--ed-stack-sm);
+  min-width: 0;
+}
+
+.header-end {
+  display: flex;
+  align-items: center;
+  gap: var(--ed-stack-sm);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: $header-control-size;
+  height: $header-control-size;
+  padding: 0;
+  border: none;
+  border-radius: $header-control-radius;
+  @include header-elevated-control;
+  color: var(--ed-primary);
+  font-size: 17px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.94);
+  }
+}
+
+.avatar-btn {
+  padding: 0;
+  border: none;
+  border-radius: $header-control-radius;
+  overflow: hidden;
+  box-shadow: elevation.$ed-soft-ui-shadow;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  img {
+    display: block;
+    width: $header-control-size;
+    height: $header-control-size;
+    min-width: $header-control-size;
+    min-height: $header-control-size;
+    border-radius: $header-control-radius;
+    object-fit: cover;
+    background: var(--ed-primary);
+    border: 2px solid var(--ed-surface-container-lowest);
+    box-sizing: border-box;
+  }
+}
+
+.notif-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: $header-control-size;
+  height: $header-control-size;
+  border-radius: $header-control-radius;
+  @include header-elevated-control;
+  color: var(--ed-primary);
+  font-size: 19px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.94);
+  }
+}
+
+.notif-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9999px;
+  background: var(--ed-error);
+  color: var(--ed-on-primary);
+  font-size: var(--ed-label-font-size);
+  font-weight: 700;
+  line-height: var(--ed-label-line-height);
+  letter-spacing: var(--ed-label-letter-spacing);
+  text-align: center;
+  border: 2px solid var(--ed-surface-container-lowest);
+  box-shadow: elevation.$ed-soft-ui-shadow;
+}

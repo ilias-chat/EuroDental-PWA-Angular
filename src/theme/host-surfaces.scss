@@ -1,0 +1,20 @@
+@use 'elevation';
+
+// Apply inside :host ::ng-deep { } on each page — pierces Ionic / encapsulation
+@mixin apply-page-surfaces {
+  .ed-card,
+  .task-card,
+  .logo-wrap {
+    @include elevation.ed-elevated-surface;
+  }
+
+  .ed-card-tonal {
+    @include elevation.ed-tonal-surface;
+  }
+
+  .soft-ui-shadow,
+  .soft-ui-shadow-sm {
+    box-shadow: elevation.$ed-soft-ui-shadow;
+  }
+
+}

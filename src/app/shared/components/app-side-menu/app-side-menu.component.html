@@ -1,0 +1,95 @@
+@if (rendered()) {
+  <div
+    class="side-menu-root"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Menu utilisateur"
+  >
+    <button
+      type="button"
+      class="side-menu-backdrop"
+      [class.side-menu-backdrop--visible]="visible()"
+      aria-label="Fermer le menu"
+      (click)="close()"
+    ></button>
+
+    <nav
+      class="side-menu-panel"
+      [class.side-menu-panel--visible]="visible()"
+      aria-label="Menu"
+    >
+      <header class="side-menu-profile">
+        <button type="button" class="side-menu-close" (click)="close()" aria-label="Fermer">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+
+        @if (auth.user(); as u) {
+          <div class="side-menu-profile-card">
+            <img
+              class="side-menu-avatar"
+              [src]="avatarSrc(u)"
+              [alt]="u.name"
+              (error)="onAvatarError(u)"
+            />
+            <p class="ed-type-label side-menu-profile-label">{{ u.profile || 'Technicien' }}</p>
+          </div>
+        }
+      </header>
+
+      <ul class="side-menu-list">
+        <li>
+          <button type="button" class="side-menu-item" (click)="onCongesClick()">
+            <span class="side-menu-item__icon" aria-hidden="true">
+              <i class="fa-solid fa-umbrella-beach"></i>
+            </span>
+            <span class="side-menu-item__label">Congés</span>
+            <i class="fa-solid fa-chevron-right side-menu-item__chevron" aria-hidden="true"></i>
+          </button>
+        </li>
+        @if (auth.canAccessTasksTracking()) {
+          <li>
+            <button type="button" class="side-menu-item" (click)="onSuiviClick()">
+              <span class="side-menu-item__icon" aria-hidden="true">
+                <i class="fa-solid fa-clock"></i>
+              </span>
+              <span class="side-menu-item__label">Suivi</span>
+              <i class="fa-solid fa-chevron-right side-menu-item__chevron" aria-hidden="true"></i>
+            </button>
+          </li>
+        }
+        <li>
+          <button
+            type="button"
+            class="side-menu-item side-menu-item--theme"
+            (click)="onThemeClick()"
+            [attr.aria-label]="theme.isDark() ? 'Activer le thème clair' : 'Activer le thème sombre'"
+          >
+            <span
+              class="side-menu-item__icon"
+              [class.side-menu-item__icon--to-dark]="!theme.isDark()"
+              [class.side-menu-item__icon--to-light]="theme.isDark()"
+              aria-hidden="true"
+            >
+              @if (theme.isDark()) {
+                <i class="fa-solid fa-sun"></i>
+              } @else {
+                <i class="fa-solid fa-moon"></i>
+              }
+            </span>
+            <span class="side-menu-item__label">
+              {{ theme.isDark() ? 'Thème clair' : 'Thème sombre' }}
+            </span>
+            <i class="fa-solid fa-chevron-right side-menu-item__chevron" aria-hidden="true"></i>
+          </button>
+        </li>
+      </ul>
+
+      <footer class="side-menu-footer">
+        <button type="button" class="side-menu-logout" (click)="logout()">
+          <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+          Se déconnecter
+        </button>
+      </footer>
+    </nav>
+  </div>
+}

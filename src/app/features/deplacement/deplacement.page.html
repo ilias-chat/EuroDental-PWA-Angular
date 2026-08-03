@@ -1,0 +1,379 @@
+<ion-content [fullscreen]="true" class="deplacement-page ed-content-padded">
+  <ion-refresher slot="fixed" (ionRefresh)="f.load($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="ed-page ed-page-stack">
+    @if (f.viewMode() === 'day') {
+      <header class="page-header">
+        <div class="page-header-text">
+          <h1 class="ed-headline">Mes Déplacements</h1>
+          <p class="date-label">{{ f.dayHeaderDate() }}</p>
+        </div>
+        @if (!f.loading()) {
+          <span class="task-count-chip">
+            <i class="fa-solid fa-route" aria-hidden="true"></i>
+            {{ f.deploymentCountLabel(f.dayDeployments().length) }}
+          </span>
+        }
+      </header>
+    }
+
+    @if (f.error()) {
+      <div class="error-banner" role="alert">
+        <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+        <span>{{ f.error() }}</span>
+      </div>
+    }
+
+    @if (f.viewMode() === 'month') {
+      <section class="month-view" aria-label="Vue mensuelle">
+        <div class="month-nav">
+          <button
+            type="button"
+            class="month-nav-btn"
+            (click)="f.previousMonth()"
+            [disabled]="f.monthLoading()"
+            aria-label="Mois précédent"
+          >
+            @if (f.monthLoading()) {
+              <ion-spinner name="crescent"></ion-spinner>
+            } @else {
+              <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+            }
+          </button>
+          <div class="month-nav-center">
+            <h2 class="month-title">{{ f.monthHeaderLabel() }}</h2>
+            <p class="month-subtitle">
+              {{ f.deploymentCountLabel(f.monthDeploymentTotal()) }} ce mois
+            </p>
+          </div>
+          <button
+            type="button"
+            class="month-nav-btn"
+            (click)="f.nextMonth()"
+            [disabled]="f.monthLoading()"
+            aria-label="Mois suivant"
+          >
+            @if (f.monthLoading()) {
+              <ion-spinner name="crescent"></ion-spinner>
+            } @else {
+              <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            }
+          </button>
+        </div>
+
+        @if (f.loading()) {
+          <div class="calendar-loading">
+            <ion-spinner name="crescent"></ion-spinner>
+          </div>
+        } @else {
+          <div class="calendar-grid-wrap ed-card">
+            <div class="calendar-weekdays">
+              @for (label of weekdayLabels; track label) {
+                <span class="weekday-label">{{ label }}</span>
+              }
+            </div>
+            <div class="calendar-days calendar-days--deploy">
+              @for (day of f.calendarDays(); track day.date) {
+                <button
+                  type="button"
+                  class="calendar-day calendar-day--deploy"
+                  [class.calendar-day--muted]="!day.isCurrentMonth"
+                  [class.calendar-day--today]="day.isToday"
+                  [disabled]="!day.isCurrentMonth"
+                  (click)="f.selectDay(day.date)"
+                >
+                  <span class="calendar-day-num">{{ day.dayNumber }}</span>
+                  @if (day.deployments.length) {
+                    <span class="deploy-badges" aria-hidden="true">
+                      @for (dep of day.deployments; track dep.id) {
+                        <span
+                          class="deploy-badge"
+                          [class.deploy-badge--done]="dep.all_tasks_completed"
+                          [title]="dep.tasks_count + ' tâche' + (dep.tasks_count > 1 ? 's' : '')"
+                        >
+                          {{ dep.tasks_count }}
+                        </span>
+                      }
+                    </span>
+                  }
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </section>
+    } @else {
+      @if (f.loading()) {
+        <div class="deploy-list">
+          @for (i of [1, 2, 3]; track i) {
+            <div class="deploy-card deploy-card--skeleton skeleton-card" aria-hidden="true">
+              <div class="skeleton-body">
+                <div class="skeleton-top">
+                  <div class="skeleton-line narrow"></div>
+                  <div class="skeleton-badge"></div>
+                </div>
+                <div class="skeleton-line wide"></div>
+                <div class="skeleton-progress"></div>
+              </div>
+              <div class="skeleton-footer">
+                <div class="skeleton-avatars"></div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else if (f.dayDeployments().length === 0) {
+        <div class="ed-card center-state empty">
+          <div class="empty-icon-wrap">
+            <i class="fa-solid fa-plane-departure" aria-hidden="true"></i>
+          </div>
+          <h2 class="ed-headline-md">Aucun déplacement</h2>
+          <p class="ed-body-md">
+            Vous n'avez aucun déplacement programmé pour cette date.
+          </p>
+          <p class="empty-hint ed-body-md">
+            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+            Utilisez le calendrier pour naviguer vers d'autres dates.
+          </p>
+        </div>
+      } @else {
+        <div class="deploy-list">
+          @for (dep of f.dayDeployments(); track dep.id) {
+            <article class="deploy-card" (click)="f.openDeployment(dep)">
+              <div class="deploy-card__body">
+                <div class="deploy-card__top">
+                  <div class="deploy-card__info">
+                    <h3 class="deploy-card__title">{{ dep.title }}</h3>
+                    <div class="deploy-card__meta">
+                      @if (dep.deployment_date) {
+                        <span>
+                          <i class="fa-solid fa-calendar" aria-hidden="true"></i>
+                          {{ formatDeploymentDate(dep.deployment_date) }}
+                        </span>
+                      }
+                      @if (dep.city_name) {
+                        <span>
+                          <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                          {{ dep.city_name }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+                  <span class="deploy-card__count">
+                    {{ dep.tasks_count }} tâche{{ dep.tasks_count > 1 ? 's' : '' }}
+                  </span>
+                </div>
+
+                @if (dep.tasks_count > 0) {
+                  <div class="deploy-progress">
+                    <div class="deploy-progress__track">
+                      <div
+                        class="deploy-progress__bar"
+                        [class.deploy-progress__bar--done]="dep.completion_percentage === 100"
+                        [style.width.%]="dep.completion_percentage ?? 0"
+                      ></div>
+                    </div>
+                    <div class="deploy-progress__labels">
+                      <span>{{ dep.completion_percentage ?? 0 }}% terminé</span>
+                      <span>{{ dep.completed_tasks_count ?? 0 }}/{{ dep.tasks_count }}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <footer class="deploy-card__footer">
+                @if (dep.responsible_name) {
+                  <div class="deploy-card__lead">
+                    <app-user-avatar
+                      [name]="dep.responsible_name"
+                      [image]="dep.responsible_image ?? null"
+                      size="sm"
+                    />
+                    <span class="deploy-card__lead-name">{{ dep.responsible_name }}</span>
+                  </div>
+                }
+                @if (showDriver(dep) || extraTeamMembers(dep).length) {
+                  <div class="deploy-card__team-stack">
+                    @if (dep.responsible_name) {
+                      <span class="deploy-card__plus" aria-hidden="true">+</span>
+                    }
+                    @if (showDriver(dep) && dep.driver_name) {
+                      <app-user-avatar
+                        [name]="dep.driver_name"
+                        [image]="dep.driver_image ?? null"
+                        size="sm"
+                      />
+                    }
+                    @for (member of extraTeamMembers(dep); track member.id) {
+                      <app-user-avatar
+                        [name]="member.name"
+                        [image]="member.image"
+                        size="sm"
+                      />
+                    }
+                  </div>
+                }
+              </footer>
+            </article>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  <button
+    type="button"
+    class="calendar-fab"
+    (click)="f.toggleView()"
+    [attr.aria-label]="f.viewMode() === 'day' ? 'Afficher le calendrier mensuel' : 'Afficher la vue du jour'"
+  >
+    <i class="fa-solid fa-calendar" aria-hidden="true"></i>
+  </button>
+
+  @if (f.pastDeploymentsCount() > 0) {
+    <button
+      type="button"
+      class="past-deployments-fab"
+      (click)="f.openPastDeploymentsModal()"
+      [attr.aria-label]="'Déplacements incomplets (' + f.pastDeploymentsCount() + ')'"
+    >
+      {{ f.pastDeploymentsCount() }}
+    </button>
+  }
+</ion-content>
+
+<ion-modal
+  class="services-picker-modal past-deployments-modal"
+  [isOpen]="f.showPastDeploymentsModal()"
+  (didDismiss)="f.onPastDeploymentsModalDismiss()"
+>
+  <ng-template>
+    <div class="services-picker-shell past-deployments-shell">
+      <div class="services-picker-handle" aria-hidden="true"></div>
+
+      <header class="services-picker-header">
+        <h2 class="services-picker-title">Déplacements incomplets</h2>
+        <button
+          type="button"
+          class="services-picker-close"
+          (click)="f.closePastDeploymentsModal()"
+          aria-label="Fermer"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="past-deployments-scroll">
+        @if (f.loadingPastDeployments()) {
+          <div class="deploy-list">
+            @for (i of [1, 2, 3]; track i) {
+              <div class="deploy-card deploy-card--skeleton skeleton-card" aria-hidden="true">
+                <div class="skeleton-body">
+                  <div class="skeleton-top">
+                    <div class="skeleton-line narrow"></div>
+                    <div class="skeleton-badge"></div>
+                  </div>
+                  <div class="skeleton-line wide"></div>
+                  <div class="skeleton-progress"></div>
+                </div>
+                <div class="skeleton-footer">
+                  <div class="skeleton-avatars"></div>
+                </div>
+              </div>
+            }
+          </div>
+        } @else if (f.pastDeployments().length === 0) {
+          <div class="past-deployments-empty">
+            <div class="past-deployments-empty-icon">
+              <i class="fa-solid fa-check-circle" aria-hidden="true"></i>
+            </div>
+            <h3 class="ed-headline-md">Aucun déploiement en retard</h3>
+            <p class="ed-body-md">Tous vos déplacements sont à jour !</p>
+          </div>
+        } @else {
+          <div class="deploy-list">
+            @for (dep of f.pastDeployments(); track dep.id) {
+              <article class="deploy-card" (click)="f.openPastDeployment(dep)">
+                <div class="deploy-card__body">
+                  <div class="deploy-card__top">
+                    <div class="deploy-card__info">
+                      <h3 class="deploy-card__title">{{ dep.title }}</h3>
+                      <div class="deploy-card__meta">
+                        @if (dep.deployment_date) {
+                          <span>
+                            <i class="fa-solid fa-calendar" aria-hidden="true"></i>
+                            {{ formatDeploymentDate(dep.deployment_date) }}
+                          </span>
+                        }
+                        @if (dep.city_name) {
+                          <span>
+                            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                            {{ dep.city_name }}
+                          </span>
+                        }
+                      </div>
+                    </div>
+                    <span class="deploy-card__count">
+                      {{ dep.tasks_count }} tâche{{ dep.tasks_count > 1 ? 's' : '' }}
+                    </span>
+                  </div>
+
+                  @if (dep.tasks_count > 0) {
+                    <div class="deploy-progress">
+                      <div class="deploy-progress__track">
+                        <div
+                          class="deploy-progress__bar"
+                          [class.deploy-progress__bar--done]="dep.completion_percentage === 100"
+                          [style.width.%]="dep.completion_percentage ?? 0"
+                        ></div>
+                      </div>
+                      <div class="deploy-progress__labels">
+                        <span>{{ dep.completion_percentage ?? 0 }}% terminé</span>
+                        <span>{{ dep.completed_tasks_count ?? 0 }}/{{ dep.tasks_count }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <footer class="deploy-card__footer">
+                  @if (dep.responsible_name) {
+                    <div class="deploy-card__lead">
+                      <app-user-avatar
+                        [name]="dep.responsible_name"
+                        [image]="dep.responsible_image ?? null"
+                        size="sm"
+                      />
+                      <span class="deploy-card__lead-name">{{ dep.responsible_name }}</span>
+                    </div>
+                  }
+                  @if (showDriver(dep) || extraTeamMembers(dep).length) {
+                    <div class="deploy-card__team-stack">
+                      @if (dep.responsible_name) {
+                        <span class="deploy-card__plus" aria-hidden="true">+</span>
+                      }
+                      @if (showDriver(dep) && dep.driver_name) {
+                        <app-user-avatar
+                          [name]="dep.driver_name"
+                          [image]="dep.driver_image ?? null"
+                          size="sm"
+                        />
+                      }
+                      @for (member of extraTeamMembers(dep); track member.id) {
+                        <app-user-avatar
+                          [name]="member.name"
+                          [image]="member.image"
+                          size="sm"
+                        />
+                      }
+                    </div>
+                  }
+                </footer>
+              </article>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

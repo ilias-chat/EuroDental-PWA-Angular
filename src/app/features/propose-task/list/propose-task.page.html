@@ -1,0 +1,337 @@
+<ion-content [fullscreen]="true" class="propose-page ed-content-padded">
+  <ion-refresher slot="fixed" (ionRefresh)="load($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="ed-page ed-page-stack propose-page-inner">
+    <header class="propose-page-header">
+      <h1 class="ed-headline">Mes Propositions</h1>
+      <p class="ed-body-md propose-page-subtitle">Propositions de tâches en attente</p>
+    </header>
+
+    @if (error()) {
+      <div class="error-banner" role="alert">
+        <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="propose-loading center-state">
+        <ion-spinner name="crescent" aria-label="Chargement" />
+      </div>
+    } @else if (proposals().length === 0) {
+      <div class="ed-card center-state propose-empty">
+        <div class="propose-empty-icon" aria-hidden="true">
+          <i class="fa-solid fa-lightbulb"></i>
+        </div>
+        <h2 class="ed-headline-md">Aucune proposition</h2>
+        <p class="ed-body-md">Vous n'avez pas encore proposé de tâches</p>
+        <button type="button" class="propose-primary-btn" (click)="openCreateModal()">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          Proposer une tâche
+        </button>
+      </div>
+    } @else {
+      <div class="propose-list">
+        @for (proposal of proposals(); track proposal.id) {
+          <article class="ed-card propose-card">
+            <div class="propose-card-body">
+              <div class="propose-card-top">
+                <div class="propose-card-main">
+                  <h3 class="propose-card-title">{{ proposal.task_name }}</h3>
+                  <p class="propose-card-type ed-body-md">{{ proposal.task_type }}</p>
+                </div>
+                <div class="propose-card-badges">
+                  <span [class]="proposalStatusBadgeClass(proposal.status)">
+                    {{ proposal.status }}
+                  </span>
+                  @if (proposal.urgent) {
+                    <span class="propose-urgent-badge">URGENT</span>
+                  }
+                </div>
+              </div>
+            </div>
+            <footer class="propose-card-footer">
+              <div class="propose-card-client">
+                @if (proposal.client_name) {
+                  <img
+                    class="propose-client-avatar"
+                    [src]="resolveClientAvatar(proposal.client_name, proposal.client_image)"
+                    [alt]="proposal.client_name"
+                  />
+                  <span class="ed-body-md">
+                    <span class="propose-client-label">Client:</span>
+                    {{ proposal.client_name }}
+                    @if (proposal.client_city) {
+                      <span class="propose-client-city">({{ proposal.client_city }})</span>
+                    }
+                  </span>
+                } @else {
+                  <span class="propose-no-client ed-body-md">Aucun client assigné</span>
+                }
+              </div>
+              @if (!isPendingProposal(proposal.status)) {
+                <span class="propose-created ed-body-md">{{ proposal.created_at }}</span>
+              }
+              @if (isPendingProposal(proposal.status)) {
+                <div class="propose-card-actions">
+                  <button
+                    type="button"
+                    class="leave-icon-btn leave-icon-btn--edit"
+                    (click)="openEditModal(proposal)"
+                    aria-label="Modifier la proposition"
+                  >
+                    <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="leave-icon-btn leave-icon-btn--delete"
+                    (click)="requestDelete(proposal.id)"
+                    aria-label="Supprimer la proposition"
+                  >
+                    <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                  </button>
+                </div>
+              }
+            </footer>
+          </article>
+        }
+      </div>
+    }
+  </div>
+
+  @if (!loading() && !error()) {
+    <button
+      type="button"
+      class="propose-fab"
+      (click)="openCreateModal()"
+      aria-label="Proposer une tâche"
+    >
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>
+    </button>
+  }
+</ion-content>
+
+<ion-modal
+  class="leave-request-form-modal propose-task-form-modal"
+  [isOpen]="showFormModal()"
+  (didDismiss)="closeFormModal()"
+>
+  <ng-template>
+    <div class="services-picker-shell">
+      <div class="services-picker-handle" aria-hidden="true"></div>
+
+      <header class="services-picker-header">
+        <h2 class="services-picker-title">
+          {{ editMode() ? 'Modifier la proposition' : 'Proposer une tâche' }}
+        </h2>
+        <button type="button" class="services-picker-close" (click)="closeFormModal()" aria-label="Fermer">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="services-picker-scroll" (click)="hideClientDropdown()">
+        <form class="leave-form" (submit)="$event.preventDefault(); submitForm()">
+          <div class="leave-form-field">
+            <label class="leave-form-label leave-form-label--required" for="propose-task-name">
+              Nom de la tâche
+            </label>
+            <input
+              id="propose-task-name"
+              type="text"
+              class="leave-form-control"
+              required
+              placeholder="Ex: Réparation équipement"
+              [value]="form().task_name"
+              (input)="updateFormField('task_name', $any($event.target).value)"
+            />
+          </div>
+
+          <div class="leave-form-field">
+            <label class="leave-form-label leave-form-label--required" for="propose-task-type">
+              Type de tâche
+            </label>
+            <select
+              id="propose-task-type"
+              class="leave-form-control leave-form-control--select"
+              required
+              [value]="form().task_type"
+              (change)="updateFormField('task_type', $any($event.target).value)"
+            >
+              <option value="">Sélectionner un type</option>
+              @for (type of taskTypes(); track type.id) {
+                <option [value]="type.name">{{ type.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="leave-form-field propose-client-field">
+            <label class="leave-form-label" for="propose-client-search">
+              Client <span class="propose-optional">(optionnel)</span>
+            </label>
+            <div class="propose-client-search-wrap" (click)="$event.stopPropagation()">
+              <input
+                id="propose-client-search"
+                type="text"
+                class="leave-form-control"
+                placeholder="Rechercher un client..."
+                [value]="clientSearch()"
+                (input)="onClientSearchInput($any($event.target).value)"
+                (focus)="showClientDropdown.set(true)"
+              />
+
+              @if (showClientDropdown() && filteredClients().length > 0) {
+                <ul class="propose-client-dropdown" role="listbox">
+                  @for (client of filteredClients(); track client.id) {
+                    <li>
+                      <button
+                        type="button"
+                        class="propose-client-option"
+                        (click)="selectClient(client)"
+                      >
+                        <img
+                          class="propose-client-option-avatar"
+                          [src]="resolveClientAvatar(client.name, client.image)"
+                          [alt]="client.name"
+                        />
+                        <span class="propose-client-option-text">
+                          <span class="propose-client-option-name">{{ client.name }}</span>
+                          <span class="propose-client-option-city ed-body-md">
+                            {{ client.city || 'Ville non spécifiée' }}
+                          </span>
+                        </span>
+                      </button>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+
+            @if (selectedClient(); as client) {
+              <div class="propose-selected-client">
+                <img
+                  class="propose-client-option-avatar"
+                  [src]="resolveClientAvatar(client.name, client.image)"
+                  [alt]="client.name"
+                />
+                <span class="propose-selected-client-text">
+                  <span class="propose-client-option-name">{{ client.name }}</span>
+                  <span class="propose-client-option-city ed-body-md">
+                    {{ client.city || 'Ville non spécifiée' }}
+                  </span>
+                </span>
+                <button type="button" class="propose-clear-client" (click)="clearClient()" aria-label="Retirer le client">
+                  <i class="fa-solid fa-times" aria-hidden="true"></i>
+                </button>
+              </div>
+            }
+          </div>
+
+          <div class="leave-form-field">
+            <label class="leave-form-label" for="propose-description">
+              Description
+              @if (descriptionRequired()) {
+                <span class="leave-form-label--required-inline">*</span>
+              } @else {
+                <span class="propose-optional">(optionnel)</span>
+              }
+            </label>
+            <textarea
+              id="propose-description"
+              class="leave-form-control leave-form-textarea"
+              rows="4"
+              placeholder="Décrivez la tâche proposée..."
+              [required]="descriptionRequired()"
+              [value]="form().description"
+              (input)="updateFormField('description', $any($event.target).value)"
+            ></textarea>
+            @if (descriptionRequired()) {
+              <p class="propose-hint ed-body-md">
+                La description est obligatoire si aucun client n'est sélectionné
+              </p>
+            }
+          </div>
+
+          <div class="leave-form-field">
+            <label class="propose-urgent-check">
+              <input
+                type="checkbox"
+                [checked]="form().urgent"
+                (change)="updateFormField('urgent', $any($event.target).checked)"
+              />
+              <span>
+                <span class="propose-urgent-label">Marquer comme urgent</span>
+                <span class="propose-hint ed-body-md">Cette tâche nécessite une attention immédiate</span>
+              </span>
+            </label>
+          </div>
+        </form>
+      </div>
+
+      <div class="services-picker-footer">
+        <button
+          type="button"
+          class="leave-form-submit"
+          (click)="submitForm()"
+          [disabled]="submitting() || !form().task_name.trim() || !form().task_type.trim() || (descriptionRequired() && !form().description.trim())"
+        >
+          @if (submitting()) {
+            <ion-spinner name="crescent" color="light" />
+            <span>{{ editMode() ? 'Mise à jour...' : 'Envoi en cours...' }}</span>
+          } @else {
+            <i class="fa-solid" [class]="editMode() ? 'fa-check' : 'fa-paper-plane'" aria-hidden="true"></i>
+            <span>{{ editMode() ? 'Mettre à jour' : 'Envoyer la proposition' }}</span>
+          }
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<ion-modal
+  class="leave-confirm-modal"
+  [isOpen]="showDeleteConfirm()"
+  (didDismiss)="closeDeleteConfirm()"
+>
+  <ng-template>
+    <div class="services-picker-shell leave-confirm-shell">
+      <div class="services-picker-handle" aria-hidden="true"></div>
+
+      <header class="services-picker-header">
+        <h2 class="services-picker-title">Supprimer la proposition</h2>
+        <button type="button" class="services-picker-close" (click)="closeDeleteConfirm()" aria-label="Fermer">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <div class="leave-confirm-body">
+        <div class="leave-detail-block leave-confirm-message-block">
+          <p class="leave-confirm-message">
+            Êtes-vous sûr de vouloir supprimer cette proposition de tâche ? Cette action est irréversible.
+          </p>
+        </div>
+      </div>
+
+      <footer class="services-picker-footer leave-confirm-footer">
+        <div class="leave-confirm-actions">
+          <button type="button" class="leave-confirm-btn leave-confirm-btn--secondary" (click)="closeDeleteConfirm()">
+            Annuler
+          </button>
+          <button
+            type="button"
+            class="leave-confirm-btn leave-confirm-btn--danger"
+            (click)="confirmDelete()"
+            [disabled]="deleting()"
+          >
+            @if (deleting()) {
+              <ion-spinner name="crescent" color="light" />
+            } @else {
+              Supprimer
+            }
+          </button>
+        </div>
+      </footer>
+    </div>
+  </ng-template>
+</ion-modal>

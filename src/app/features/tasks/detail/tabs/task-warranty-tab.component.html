@@ -1,0 +1,51 @@
+<div class="ed-page ed-page-stack tab-panel">
+  <h3 class="section-label ed-label px-section">Produits sous garantie</h3>
+  @if (f.warranty().length === 0) {
+    <div class="ed-card empty-box">
+      <span class="empty-box__icon" aria-hidden="true">
+        <i class="fa-solid fa-shield-halved"></i>
+      </span>
+      <p class="ed-body-md">Aucun produit actuellement couvert par la garantie.</p>
+    </div>
+  } @else {
+    @for (item of f.warranty(); track item.delivery_note_item_id) {
+      @let status = f.warrantyStatusColors(item.days_left);
+      <article class="ed-card warranty-card">
+        <div class="warranty-card-top">
+          <div class="warranty-card-intro">
+            <h4 class="warranty-product-name">{{ item.product_name }}</h4>
+            <p class="warranty-purchase-date">
+              Acheté le {{ f.formatWarrantyPurchaseDate(item.purchase_date) }}
+            </p>
+            @if (item.delivered_quantity > 1) {
+              <p class="warranty-qty ed-body-md">Quantité livrée : {{ item.delivered_quantity }}</p>
+            }
+          </div>
+          <span
+            class="warranty-status-icon"
+            [style.background]="status.bg"
+            [style.color]="status.text"
+            aria-hidden="true"
+          >
+            <i [class]="f.warrantyStatusIcon(item.days_left)"></i>
+          </span>
+        </div>
+
+        <div class="warranty-progress-track">
+          <div
+            class="warranty-progress-fill"
+            [style.width.%]="f.warrantyProgressPercent(item)"
+            [style.background]="status.text"
+          ></div>
+        </div>
+
+        <div class="warranty-card-footer">
+          <span class="warranty-days-text ed-body-md">{{ f.warrantyDaysLeftLabel(item) }}</span>
+          <span class="warranty-status-label" [style.color]="status.text">
+            {{ f.warrantyStatusLabel(item.days_left) }}
+          </span>
+        </div>
+      </article>
+    }
+  }
+</div>

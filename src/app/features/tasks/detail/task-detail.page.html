@@ -1,0 +1,67 @@
+<app-app-header [showBack]="true" [backHref]="f.tasksListBackHref()" />
+
+<div class="detail-segment-bar">
+  <ion-segment
+    class="detail-segment"
+    [value]="f.tab()"
+    (ionChange)="setTab($any($event.detail.value))"
+    scrollable="true"
+  >
+    <ion-segment-button value="info"><ion-label>Aperçu</ion-label></ion-segment-button>
+    <ion-segment-button value="timeline"><ion-label>Progression</ion-label></ion-segment-button>
+    @if (f.task() && !f.isAdminDeliveryAutoTask(f.task()!)) {
+      <ion-segment-button value="warranty"><ion-label>Garantie</ion-label></ion-segment-button>
+      <ion-segment-button value="services"><ion-label>Services</ion-label></ion-segment-button>
+      <ion-segment-button value="payments"><ion-label>Paiements</ion-label></ion-segment-button>
+    }
+  </ion-segment>
+</div>
+
+<ion-content class="detail-content ed-content-padded">
+  @if (f.loading()) {
+    <div class="center"><ion-spinner name="crescent" color="primary"></ion-spinner></div>
+  } @else if (f.task()) {
+    @switch (f.tab()) {
+      @case ('info') {
+        <app-task-info-tab />
+      }
+      @case ('timeline') {
+        <app-task-progression-tab />
+      }
+      @case ('warranty') {
+        <app-task-warranty-tab />
+      }
+      @case ('services') {
+        <app-task-services-tab />
+      }
+      @case ('payments') {
+        <app-task-payments-tab />
+      }
+    }
+  }
+</ion-content>
+
+@if (f.task(); as t) {
+  @if (f.tab() === 'services' && !f.isAdminDeliveryAutoTask(t) && f.canManageServices(t)) {
+    <div class="services-fab-group" role="group" aria-label="Actions services">
+      <button
+        type="button"
+        class="services-fab services-fab--propose"
+        (click)="f.openProposeServiceModal()"
+        aria-label="Proposer un service"
+      >
+        <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
+      </button>
+      <button
+        type="button"
+        class="services-fab services-fab--manage"
+        (click)="f.openServicesModal()"
+        aria-label="Gérer les services"
+      >
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+      </button>
+    </div>
+  }
+}
+
+<app-task-detail-modals />
