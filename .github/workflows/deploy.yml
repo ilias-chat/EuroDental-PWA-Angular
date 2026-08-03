@@ -1,0 +1,111 @@
+name: Deploy EuroDental PWA
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-eurodental-pwa-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production PWA
+        run: npm run build -- --configuration production
+
+      - name: Setup SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          if [ -z "$SSH_PRIVATE_KEY" ]; then
+            echo "::error::Missing GitHub secret SSH_PRIVATE_KEY."
+            exit 1
+          fi
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "${{ secrets.SSH_PORT }}" -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+          {
+            echo "SSH_KEY_FILE=$HOME/.ssh/deploy_key"
+            echo "SSH_COMMON_OPTS=-o StrictHostKeyChecking=accept-new -o ConnectTimeout=60 -o ServerAliveInterval=15 -o ServerAliveCountMax=10"
+          } >> "$GITHUB_ENV"
+
+      - name: Test SSH connection
+        run: |
+          TARGET="${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}"
+          ssh -i "$SSH_KEY_FILE" $SSH_COMMON_OPTS -p "${{ secrets.SSH_PORT }}" "$TARGET" \
+            "echo SSH_OK && uptime && df -h . | head -2"
+
+      - name: Deploy static files to Hostinger
+        env:
+          PWA_APP_PATH: ${{ secrets.PWA_APP_PATH }}
+        run: |
+          if [ -z "$PWA_APP_PATH" ]; then
+            echo "::error::Missing GitHub secret PWA_APP_PATH."
+            exit 1
+          fi
+
+          TARGET="${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}"
+          REMOTE="${TARGET}:${PWA_APP_PATH}/"
+          RSYNC_SSH="ssh -i $SSH_KEY_FILE $SSH_COMMON_OPTS -p ${{ secrets.SSH_PORT }}"
+
+          ssh -i "$SSH_KEY_FILE" $SSH_COMMON_OPTS -p "${{ secrets.SSH_PORT }}" "$TARGET" \
+            "mkdir -p $(printf '%q' "$PWA_APP_PATH")"
+
+          rsync -avz --delete --info=stats2 \
+            -e "$RSYNC_SSH" \
+            www/ "$REMOTE/www/"
+
+          rsync -avz --info=stats2 \
+            -e "$RSYNC_SSH" \
+            server.js "$REMOTE"
+
+          rsync -avz --info=stats2 \
+            -e "$RSYNC_SSH" \
+            hostinger-package.json "$REMOTE/package.json"
+
+          ssh -i "$SSH_KEY_FILE" $SSH_COMMON_OPTS -p "${{ secrets.SSH_PORT }}" "$TARGET" \
+            "PWA_APP_PATH=$(printf '%q' "$PWA_APP_PATH") sh -s" <<'REMOTE_SCRIPT'
+          set -eu
+          cd "$PWA_APP_PATH"
+          chmod 644 server.js package.json
+          mkdir -p tmp
+          touch tmp/restart.txt
+          echo "PWA Node.js files deployed and restart requested."
+          REMOTE_SCRIPT
+
+      - name: Verify deployed PWA
+        env:
+          PWA_URL: ${{ secrets.PWA_URL }}
+        run: |
+          if [ -z "$PWA_URL" ]; then
+            echo "PWA_URL is not configured; skipping HTTP verification."
+            exit 0
+          fi
+
+          code=$(curl -sS -o /tmp/pwa-body.txt -w "%{http_code}" --max-time 25 "$PWA_URL")
+          echo "HTTP $code"
+          head -c 400 /tmp/pwa-body.txt || true
+          echo
+          test "$code" = "200"
