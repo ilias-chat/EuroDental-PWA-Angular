@@ -1,5 +1,7 @@
 :host {
   display: block;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 .install-page {
@@ -7,14 +9,15 @@
 }
 
 .install-shell {
+  box-sizing: border-box;
   min-height: 100%;
   display: grid;
   align-content: center;
   gap: 2rem;
-  width: calc(100% - 2rem);
+  width: calc(100vw - 2rem);
   max-width: 30rem;
   margin: 0 auto;
-  padding: 2rem 0 3rem;
+  padding: 2rem 1rem 3rem;
 }
 
 .install-brand {
@@ -89,6 +92,7 @@ h1 {
   font-size: 0.875rem;
   line-height: 1.5;
   text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .install-instructions,

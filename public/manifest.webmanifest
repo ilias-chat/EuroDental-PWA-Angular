@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "EuroDental",
-  "short_name": "EuroDental",
+  "name": "EuroDental PWA",
+  "short_name": "EuroDental PWA",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0A1E3D",

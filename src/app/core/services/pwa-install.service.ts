@@ -13,8 +13,6 @@ export class PwaInstallService {
   readonly canInstall = computed(() => this.deferredPrompt() !== null);
   readonly isIos = this.detectIos();
   readonly isSafari = this.detectSafari();
-  readonly installRequested = signal(false);
-
   constructor() {
     if (!this.isStandalone()) {
       document.documentElement.setAttribute('data-ed-theme', 'light');
@@ -28,7 +26,6 @@ export class PwaInstallService {
 
     window.addEventListener('appinstalled', () => {
       this.deferredPrompt.set(null);
-      this.installRequested.set(true);
     });
   }
 
@@ -41,7 +38,6 @@ export class PwaInstallService {
     await prompt.prompt();
     await prompt.userChoice;
     this.deferredPrompt.set(null);
-    this.installRequested.set(true);
   }
 
   private detectStandaloneMode(): boolean {

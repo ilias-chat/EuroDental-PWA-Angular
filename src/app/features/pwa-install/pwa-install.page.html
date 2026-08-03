@@ -2,7 +2,7 @@
   <main class="install-shell">
     <div class="install-brand" aria-label="EuroDental">
       <img src="icons/icon-192.png" alt="" />
-      <span>EuroDental</span>
+      <span>EuroDental PWA</span>
     </div>
 
     <section class="install-panel" aria-labelledby="install-title">
@@ -17,63 +17,37 @@
         dans sa propre fenêtre, comme une application native.
       </p>
 
-      @if (pwa.installRequested()) {
-        <div class="install-status" role="status">
-          <strong>Installation lancée</strong>
-          <span>Ouvrez EuroDental depuis votre écran d'accueil ou vos applications.</span>
-        </div>
-        <ion-button expand="block" fill="outline" (click)="reload()">
-          Actualiser la page
-        </ion-button>
-      } @else if (pwa.canInstall()) {
-        <ion-button expand="block" class="install-action" (click)="pwa.install()">
-          <ion-icon slot="start" name="download-outline"></ion-icon>
-          Installer l'application
-        </ion-button>
-        <p class="install-fallback-message">
-          Si le bouton ne fonctionne pas, suivez les instructions ci-dessous.
+      <ion-button expand="block" class="install-action" (click)="pwa.install()">
+        <ion-icon slot="start" name="download-outline"></ion-icon>
+        Installer l'application
+      </ion-button>
+      <p class="install-fallback-message">
+        Si le bouton ne fonctionne pas, suivez les instructions ci-dessous.
+      </p>
+
+      <div class="install-instructions">
+        <h2>Installation manuelle sur Android</h2>
+        <ol>
+          <li>Ouvrez cette page avec <strong>Chrome</strong>.</li>
+          <li>Ouvrez le menu <strong>⋮</strong> du navigateur.</li>
+          <li>Choisissez <strong>Installer l'application</strong> ou <strong>Ajouter à l'écran d'accueil</strong>.</li>
+          <li>Confirmez l'installation.</li>
+        </ol>
+      </div>
+
+      <div class="install-instructions">
+        <h2>Installation manuelle sur iPhone</h2>
+        <ol>
+          <li>Ouvrez cette page avec <strong>Safari</strong>.</li>
+          <li>Ouvrez le menu <strong>Partager</strong>.</li>
+          <li>Choisissez <strong>Sur l'écran d'accueil</strong>.</li>
+          <li>Confirmez avec <strong>Ajouter</strong>.</li>
+        </ol>
+        <p class="install-hint">
+          <ion-icon name="share-outline" aria-hidden="true"></ion-icon>
+          L'installation sur iPhone fonctionne depuis Safari.
         </p>
-        <div class="install-instructions">
-          <h2>Installation manuelle</h2>
-          <ol>
-            <li>Ouvrez le menu du navigateur.</li>
-            <li>Choisissez <strong>Installer l'application</strong> ou <strong>Ajouter à l'écran d'accueil</strong>.</li>
-            <li>Confirmez l'installation.</li>
-          </ol>
-        </div>
-      } @else if (pwa.isIos) {
-        <div class="install-instructions">
-          <h2>Sur iPhone ou iPad</h2>
-          <ol>
-            <li>Ouvrez le menu <strong>Partager</strong> de Safari.</li>
-            <li>Choisissez <strong>Sur l'écran d'accueil</strong>.</li>
-            <li>Confirmez avec <strong>Ajouter</strong>.</li>
-          </ol>
-          <p class="install-hint">
-            <ion-icon name="share-outline" aria-hidden="true"></ion-icon>
-            Utilisez Safari pour installer l'application.
-          </p>
-        </div>
-      } @else if (pwa.isSafari) {
-        <div class="install-instructions">
-          <h2>Depuis Safari</h2>
-          <ol>
-            <li>Ouvrez le menu <strong>Fichier</strong>.</li>
-            <li>Choisissez <strong>Ajouter au Dock</strong>.</li>
-            <li>Confirmez l'ajout d'EuroDental.</li>
-          </ol>
-        </div>
-      } @else {
-        <div class="install-instructions">
-          <h2>Installer depuis votre navigateur</h2>
-          <ol>
-            <li>Ouvrez le menu du navigateur.</li>
-            <li>Choisissez <strong>Installer l'application</strong> ou <strong>Ajouter à l'écran d'accueil</strong>.</li>
-            <li>Confirmez l'installation.</li>
-          </ol>
-          <p class="install-hint">Si l'option n'apparaît pas, ouvrez cette adresse en HTTPS dans Chrome ou Edge.</p>
-        </div>
-      }
+      </div>
     </section>
   </main>
 </ion-content>
