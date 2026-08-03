@@ -1,3 +1,7 @@
-<ion-app>
-  <ion-router-outlet></ion-router-outlet>
-</ion-app>
+@if (pwa.isStandalone()) {
+  <ion-app>
+    <ion-router-outlet></ion-router-outlet>
+  </ion-app>
+} @else {
+  <app-pwa-install></app-pwa-install>
+}
