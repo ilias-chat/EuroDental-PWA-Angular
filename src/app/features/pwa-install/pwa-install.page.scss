@@ -11,7 +11,8 @@
   display: grid;
   align-content: center;
   gap: 2rem;
-  width: min(100% - 2rem, 30rem);
+  width: calc(100% - 2rem);
+  max-width: 30rem;
   margin: 0 auto;
   padding: 2rem 0 3rem;
 }
@@ -31,6 +32,7 @@
 }
 
 .install-panel {
+  box-sizing: border-box;
   padding: clamp(1.5rem, 6vw, 2.5rem);
   border: 1px solid rgba(35, 69, 111, 0.12);
   border-radius: 1.25rem;
@@ -79,6 +81,14 @@ h1 {
   --box-shadow: none;
   height: 3.1rem;
   font-weight: 700;
+}
+
+.install-fallback-message {
+  margin: 0.75rem 0 1rem;
+  color: #52647c;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: center;
 }
 
 .install-instructions,
