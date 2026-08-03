@@ -109,6 +109,10 @@ h1 {
   background: #f7faff;
 }
 
+.install-instructions + .install-instructions {
+  margin-top: 1rem;
+}
+
 .install-instructions h2 {
   margin: 0 0 0.75rem;
   color: #19385e;
