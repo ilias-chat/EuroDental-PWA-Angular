@@ -18,7 +18,4 @@ export class PwaInstallPage {
     addIcons({ downloadOutline, shareOutline });
   }
 
-  reload(): void {
-    window.location.reload();
-  }
 }
