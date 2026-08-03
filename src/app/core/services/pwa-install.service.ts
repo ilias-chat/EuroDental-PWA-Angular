@@ -16,6 +16,11 @@ export class PwaInstallService {
   readonly installRequested = signal(false);
 
   constructor() {
+    if (!this.isStandalone()) {
+      document.documentElement.setAttribute('data-ed-theme', 'light');
+      document.documentElement.style.colorScheme = 'light';
+    }
+
     window.addEventListener('beforeinstallprompt', (event) => {
       event.preventDefault();
       this.deferredPrompt.set(event as BeforeInstallPromptEvent);
