@@ -1,16 +1,15 @@
 <ion-content [fullscreen]="true" class="install-page">
   <main class="install-shell">
-    <div class="install-brand" aria-label="EuroDental">
-      <img src="icons/icon-192.png" alt="" />
-      <span>EuroDental PWA</span>
-    </div>
-
     <section class="install-panel" aria-labelledby="install-title">
+      <div class="install-brand" aria-label="EuroDental PWA">
+        <img src="icons/icon-192.png" alt="" />
+        <span>EuroDental PWA</span>
+      </div>
+
       <div class="install-icon" aria-hidden="true">
         <ion-icon name="download-outline"></ion-icon>
       </div>
 
-      <p class="install-eyebrow">Application EuroDental</p>
       <h1 id="install-title">Installez l'application</h1>
       <ion-button expand="block" class="install-action" (click)="pwa.install()">
         <ion-icon slot="start" name="download-outline"></ion-icon>

@@ -30,6 +30,7 @@ ion-content {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  margin-bottom: 1.5rem;
   color: #12294b;
   font: 700 1.1rem/1.2 'Plus Jakarta Sans', sans-serif;
 }
@@ -59,15 +60,6 @@ ion-content {
   color: #fff;
   background: #1d5ca8;
   font-size: 1.75rem;
-}
-
-.install-eyebrow {
-  margin: 0 0 0.5rem;
-  color: #1d5ca8;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 h1 {
