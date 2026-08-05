@@ -6,6 +6,7 @@ export interface TaskUserRef {
 
 export interface TaskListItem {
   id: number;
+  reference: string | null;
   client_id: number | null;
   task_name: string;
   task_type: string;
@@ -146,6 +147,7 @@ export interface TaskCreateClientsResponse {
 
 export interface CreateTaskPayload {
   task_name: string;
+  reference?: string | null;
   task_type: string;
   description?: string | null;
   client_id?: number | null;
@@ -158,7 +160,7 @@ export interface CreateTaskPayload {
 export interface CreateTaskResponse {
   success: boolean;
   message?: string;
-  task?: { id: number };
+  task?: { id: number; reference?: string | null };
 }
 
 export interface TaskTypesResponse {

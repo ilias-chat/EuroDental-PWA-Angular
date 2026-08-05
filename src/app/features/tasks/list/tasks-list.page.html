@@ -137,6 +137,9 @@
                 </div>
 
                 <h3 class="task-card-title">{{ task.task_name }}</h3>
+                @if (task.reference) {
+                  <p class="task-card-reference">Réf. {{ task.reference }}</p>
+                }
 
                 <div class="task-card-bottom">
                   <div class="team-stack">
@@ -261,6 +264,9 @@
                   </div>
 
                   <h3 class="task-card-title">{{ task.task_name }}</h3>
+                  @if (task.reference) {
+                    <p class="task-card-reference">Réf. {{ task.reference }}</p>
+                  }
 
                   <div class="task-card-bottom">
                     <div class="team-stack">

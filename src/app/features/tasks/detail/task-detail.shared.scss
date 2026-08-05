@@ -63,6 +63,13 @@
   margin: 0;
 }
 
+.task-reference {
+  margin: 6px 0 0;
+  color: var(--ed-on-surface-variant);
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .payment-chips,
 .description-block {
   position: relative;

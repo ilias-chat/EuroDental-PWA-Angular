@@ -24,6 +24,9 @@
             <div class="deplacement-task-card__body">
               <div class="deplacement-task-card__main">
                 <h4 class="deplacement-task-card__title">{{ task.task_name }}</h4>
+                @if (task.reference) {
+                  <p class="deplacement-task-card__reference">Réf. {{ task.reference }}</p>
+                }
                 <p class="ed-type-label">{{ task.task_type }}</p>
               </div>
               <app-task-status-badge

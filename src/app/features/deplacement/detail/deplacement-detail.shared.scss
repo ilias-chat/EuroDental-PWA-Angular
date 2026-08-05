@@ -290,6 +290,13 @@
     font-weight: 700;
   }
 
+  &__reference {
+    margin: 0 0 4px;
+    color: var(--ed-on-surface-variant);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
   &__footer {
     display: flex;
     align-items: center;

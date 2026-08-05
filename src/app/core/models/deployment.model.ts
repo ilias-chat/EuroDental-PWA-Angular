@@ -39,6 +39,7 @@ export interface DeploymentMonthBadge {
 
 export interface DeploymentTaskSummary {
   id: number;
+  reference?: string | null;
   task_name: string;
   status: string;
   task_type: string;

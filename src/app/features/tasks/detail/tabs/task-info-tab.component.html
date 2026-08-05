@@ -7,6 +7,9 @@
         <div class="summary-card-intro">
           <p class="ed-type-label">{{ t.task_type }}</p>
           <h2 class="ed-headline-md summary-title">{{ t.task_name }}</h2>
+          @if (t.reference) {
+            <p class="task-reference">Réf. {{ t.reference }}</p>
+          }
         </div>
         <div class="summary-status-slot">
           <app-task-status-badge [status]="t.status" [urgent]="t.urgent" />

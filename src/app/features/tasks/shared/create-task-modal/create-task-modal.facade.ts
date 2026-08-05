@@ -12,6 +12,8 @@ import { avatarFallbackUrl, resolveAvatarUrl } from '@shared/utils/asset-url';
 
 interface CreateTaskFormState {
   task_name: string;
+  reference: string;
+  autoGenerateReference: boolean;
   task_type: string;
   description: string;
   client_id: number | null;
@@ -107,6 +109,14 @@ export class CreateTaskModalFacade {
 
   updateField<K extends keyof CreateTaskFormState>(key: K, value: CreateTaskFormState[K]): void {
     this.form.update((f) => ({ ...f, [key]: value }));
+  }
+
+  setAutoGenerateReference(enabled: boolean): void {
+    this.form.update((f) => ({
+      ...f,
+      autoGenerateReference: enabled,
+      reference: enabled ? '' : f.reference,
+    }));
   }
 
   clientDisplayName(client: ClientSearchItem | null): string {
@@ -235,10 +245,15 @@ export class CreateTaskModalFacade {
     if (!form.task_name.trim() || !form.task_type || !form.task_date || this.creating()) {
       return;
     }
+    if (!form.autoGenerateReference && !form.reference.trim()) {
+      void this.presentToast('Veuillez saisir une référence ou activer la génération automatique.');
+      return;
+    }
 
     this.creating.set(true);
     const payload: CreateTaskPayload = {
       task_name: form.task_name.trim(),
+      reference: form.autoGenerateReference ? null : form.reference.trim(),
       task_type: form.task_type,
       description: form.description.trim() || null,
       client_id: form.client_id,
@@ -333,6 +348,8 @@ export class CreateTaskModalFacade {
   private emptyForm(): CreateTaskFormState {
     return {
       task_name: '',
+      reference: '',
+      autoGenerateReference: true,
       task_type: '',
       description: '',
       client_id: null,

@@ -29,6 +29,29 @@
           </div>
 
           <div class="payment-modal-field">
+            <label class="payment-modal-label ed-label" for="create-task-reference">Référence</label>
+            <label class="create-task-reference-toggle">
+              <input
+                type="checkbox"
+                [ngModel]="f.form().autoGenerateReference"
+                (ngModelChange)="f.setAutoGenerateReference($event)"
+              />
+              <span>Générer automatiquement</span>
+            </label>
+            <input
+              id="create-task-reference"
+              class="payment-modal-control"
+              type="text"
+              maxlength="64"
+              placeholder="Saisir une référence"
+              [disabled]="f.form().autoGenerateReference"
+              [ngModel]="f.form().reference"
+              (ngModelChange)="f.updateField('reference', $event)"
+              (click)="$event.stopPropagation()"
+            />
+          </div>
+
+          <div class="payment-modal-field">
             <label class="payment-modal-label ed-label" for="create-task-type">Type</label>
             <select
               id="create-task-type"

@@ -61,6 +61,13 @@
     overflow: hidden;
   }
 
+  .task-card-reference {
+    margin: -6px 0 0;
+    color: var(--ed-on-surface-variant);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
   .task-card-bottom {
     display: flex;
     align-items: center;
