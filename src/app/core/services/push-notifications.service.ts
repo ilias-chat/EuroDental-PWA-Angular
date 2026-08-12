@@ -14,9 +14,7 @@ export class PushNotificationsService {
       return;
     }
 
-    const vapidKey = environment.vapidPublicKey?.trim();
     if (
-      !vapidKey ||
       typeof window === 'undefined' ||
       !('serviceWorker' in navigator) ||
       !('PushManager' in window) ||
@@ -30,6 +28,12 @@ export class PushNotificationsService {
       permission = await Notification.requestPermission();
     }
     if (permission !== 'granted') {
+      return;
+    }
+
+    const subscriptionApiUrl = environment.notificationApiUrl || environment.apiUrl;
+    const vapidKey = await this.getVapidPublicKey(subscriptionApiUrl);
+    if (!vapidKey) {
       return;
     }
 
@@ -50,18 +54,63 @@ export class PushNotificationsService {
       return;
     }
 
-    await firstValueFrom(
-      this.http.post(`${environment.apiUrl}/webpush/subscribe`, {
-        endpoint: json.endpoint,
-        keys: { p256dh, auth },
-        contentEncoding: 'aesgcm',
-      })
-    );
+    await this.storeSubscription(subscriptionApiUrl, json.endpoint, p256dh, auth);
   }
 
   /** The API has no browser-unsubscribe endpoint yet, so the subscription remains inactive after logout. */
   async disableForCurrentUser(): Promise<void> {
     return;
+  }
+
+  private async getVapidPublicKey(apiUrl: string): Promise<string | null> {
+    const configuredKey = environment.vapidPublicKey?.trim();
+    if (configuredKey) {
+      return configuredKey;
+    }
+
+    try {
+      const response = await firstValueFrom(
+        this.http.get<{ public_key?: string | null }>(`${apiUrl}/notifications/vapid-public-key`)
+      );
+
+      return response.public_key?.trim() || null;
+    } catch {
+      try {
+        const response = await firstValueFrom(
+          this.http.get<{ public_key?: string | null }>(`${environment.apiUrl}/webpush/vapid-public-key`)
+        );
+
+        return response.public_key?.trim() || null;
+      } catch {
+        return null;
+      }
+    }
+  }
+
+  private async storeSubscription(
+    apiUrl: string,
+    endpoint: string,
+    p256dh: string,
+    auth: string
+  ): Promise<void> {
+    try {
+      await firstValueFrom(
+        this.http.post(`${apiUrl}/notifications/push-subscriptions`, {
+          endpoint,
+          keys: { p256dh, auth },
+          content_encoding: 'aes128gcm',
+        })
+      );
+      return;
+    } catch {
+      await firstValueFrom(
+        this.http.post(`${environment.apiUrl}/webpush/subscribe`, {
+          endpoint,
+          keys: { p256dh, auth },
+          contentEncoding: 'aesgcm',
+        })
+      );
+    }
   }
 
   private urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
