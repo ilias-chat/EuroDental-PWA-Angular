@@ -22,8 +22,16 @@ const contentTypes = {
 
 function sendFile(response, filePath) {
   const extension = path.extname(filePath).toLowerCase();
+  const fileName = path.basename(filePath).toLowerCase();
+  const shouldRevalidate =
+    extension === '.html' ||
+    extension === '.webmanifest' ||
+    fileName === 'service-worker.js' ||
+    fileName === 'ngsw-worker.js' ||
+    fileName === 'ngsw.json';
+
   response.writeHead(200, {
-    'Cache-Control': extension === '.html' ? 'no-cache' : 'public, max-age=31536000, immutable',
+    'Cache-Control': shouldRevalidate ? 'no-cache' : 'public, max-age=31536000, immutable',
     'Content-Type': contentTypes[extension] || 'application/octet-stream',
   });
   fs.createReadStream(filePath).pipe(response);
