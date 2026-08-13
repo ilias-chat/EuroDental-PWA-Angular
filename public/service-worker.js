@@ -11,8 +11,8 @@ self.addEventListener('push', function (event) {
   const title = data.title || 'EuroDental';
   const options = {
     body: data.body || '',
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-96.png',
+    icon: '/icons/notification-icon-192.png',
+    badge: '/icons/notification-icon-96.png',
     data: data.data || {},
   };
 
