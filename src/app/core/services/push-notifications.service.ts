@@ -78,19 +78,24 @@ export class PushNotificationsService {
         this.http.get<{ public_key?: string | null }>(`${environment.apiUrl}/webpush/vapid-public-key`)
       );
 
+      const publicKey = response.public_key?.trim();
+      if (publicKey) {
+        return publicKey;
+      }
+    } catch {
+      // Fall through to the CRM key endpoint below.
+    }
+
+    try {
+      const response = await firstValueFrom(
+        this.http.get<{ public_key?: string | null }>(
+          `${environment.notificationApiUrl}/notifications/vapid-public-key`
+        )
+      );
+
       return response.public_key?.trim() || null;
     } catch {
-      try {
-        const response = await firstValueFrom(
-          this.http.get<{ public_key?: string | null }>(
-            `${environment.notificationApiUrl}/notifications/vapid-public-key`
-          )
-        );
-
-        return response.public_key?.trim() || null;
-      } catch {
-        return null;
-      }
+      return null;
     }
   }
 
