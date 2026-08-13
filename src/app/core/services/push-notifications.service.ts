@@ -59,7 +59,7 @@ export class PushNotificationsService {
       return;
     }
 
-    await this.storeSubscription(subscriptionApiUrl, json.endpoint, p256dh, auth);
+    await this.storeSubscription(subscriptionApiUrl, json.endpoint, p256dh, auth, this.preferredContentEncoding());
   }
 
   /** The API has no browser-unsubscribe endpoint yet, so the subscription remains inactive after logout. */
@@ -98,13 +98,14 @@ export class PushNotificationsService {
     apiUrl: string,
     endpoint: string,
     p256dh: string,
-    auth: string
+    auth: string,
+    contentEncoding: string
   ): Promise<void> {
     await firstValueFrom(
       this.http.post(`${apiUrl}/webpush/subscribe`, {
         endpoint,
         keys: { p256dh, auth },
-        contentEncoding: 'aes128gcm',
+        contentEncoding,
       })
     );
 
@@ -117,7 +118,7 @@ export class PushNotificationsService {
         this.http.post(`${environment.notificationApiUrl}/notifications/push-subscriptions`, {
           endpoint,
           keys: { p256dh, auth },
-          content_encoding: 'aes128gcm',
+          content_encoding: contentEncoding,
         })
       );
     } catch {
@@ -145,6 +146,11 @@ export class PushNotificationsService {
 
   private normalizeBase64Url(value: string): string {
     return value.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+  }
+
+  private preferredContentEncoding(): string {
+    const encodings = PushManager.supportedContentEncodings;
+    return encodings.includes('aes128gcm') ? 'aes128gcm' : encodings[0] || 'aesgcm';
   }
 
   private urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
