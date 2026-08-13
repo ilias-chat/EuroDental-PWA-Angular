@@ -31,16 +31,21 @@ export class PushNotificationsService {
       return;
     }
 
-    const subscriptionApiUrl = environment.notificationApiUrl || environment.apiUrl;
-    const vapidKey = await this.getVapidPublicKey(subscriptionApiUrl);
+    const subscriptionApiUrl = environment.apiUrl;
+    const vapidKey = await this.getVapidPublicKey();
     if (!vapidKey) {
       return;
     }
 
     const registration = await navigator.serviceWorker.ready;
     const existing = await registration.pushManager.getSubscription();
+    if (existing && !this.subscriptionUsesVapidKey(existing, vapidKey)) {
+      await existing.unsubscribe();
+    }
+
+    const current = await registration.pushManager.getSubscription();
     const subscription =
-      existing ??
+      current ??
       (await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: this.urlBase64ToUint8Array(vapidKey) as BufferSource,
@@ -62,7 +67,7 @@ export class PushNotificationsService {
     return;
   }
 
-  private async getVapidPublicKey(apiUrl: string): Promise<string | null> {
+  private async getVapidPublicKey(): Promise<string | null> {
     const configuredKey = environment.vapidPublicKey?.trim();
     if (configuredKey) {
       return configuredKey;
@@ -70,14 +75,16 @@ export class PushNotificationsService {
 
     try {
       const response = await firstValueFrom(
-        this.http.get<{ public_key?: string | null }>(`${apiUrl}/notifications/vapid-public-key`)
+        this.http.get<{ public_key?: string | null }>(`${environment.apiUrl}/webpush/vapid-public-key`)
       );
 
       return response.public_key?.trim() || null;
     } catch {
       try {
         const response = await firstValueFrom(
-          this.http.get<{ public_key?: string | null }>(`${environment.apiUrl}/webpush/vapid-public-key`)
+          this.http.get<{ public_key?: string | null }>(
+            `${environment.notificationApiUrl}/notifications/vapid-public-key`
+          )
         );
 
         return response.public_key?.trim() || null;
@@ -93,24 +100,51 @@ export class PushNotificationsService {
     p256dh: string,
     auth: string
   ): Promise<void> {
+    await firstValueFrom(
+      this.http.post(`${apiUrl}/webpush/subscribe`, {
+        endpoint,
+        keys: { p256dh, auth },
+        contentEncoding: 'aes128gcm',
+      })
+    );
+
+    if (!environment.notificationApiUrl) {
+      return;
+    }
+
     try {
       await firstValueFrom(
-        this.http.post(`${apiUrl}/notifications/push-subscriptions`, {
+        this.http.post(`${environment.notificationApiUrl}/notifications/push-subscriptions`, {
           endpoint,
           keys: { p256dh, auth },
           content_encoding: 'aes128gcm',
         })
       );
-      return;
     } catch {
-      await firstValueFrom(
-        this.http.post(`${environment.apiUrl}/webpush/subscribe`, {
-          endpoint,
-          keys: { p256dh, auth },
-          contentEncoding: 'aesgcm',
-        })
-      );
+      // The CRM API may not accept the mobile token. Mobile subscription is enough for delivery.
     }
+  }
+
+  private subscriptionUsesVapidKey(subscription: PushSubscription, vapidKey: string): boolean {
+    const currentKey = subscription.options.applicationServerKey;
+    if (!currentKey) {
+      return true;
+    }
+
+    return this.arrayBufferToBase64Url(currentKey) === this.normalizeBase64Url(vapidKey);
+  }
+
+  private arrayBufferToBase64Url(buffer: ArrayBuffer): string {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return this.normalizeBase64Url(btoa(binary));
+  }
+
+  private normalizeBase64Url(value: string): string {
+    return value.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
   }
 
   private urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
