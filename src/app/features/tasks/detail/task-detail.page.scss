@@ -110,6 +110,18 @@
   min-height: 0;
 }
 
+.detail-content--with-edit {
+  --padding-bottom: calc(var(--ed-tab-bar-block-height, 60px) + 24px);
+}
+
+.task-edit-fab {
+  position: fixed;
+  right: 20px;
+  bottom: calc(var(--ed-tab-bar-block-height, 60px) + 16px);
+  z-index: 50;
+  background: var(--ed-gradient-fab-primary);
+}
+
 // FABs live in task-detail.page.html (not tab templates) — styles must be on this component.
 .services-fab-group {
   position: fixed;
@@ -127,7 +139,8 @@
   }
 }
 
-.services-fab {
+.services-fab,
+.task-edit-fab {
   width: 56px;
   height: 56px;
   padding: 0;
@@ -150,7 +163,9 @@
   &:active {
     transform: scale(0.96);
   }
+}
 
+.services-fab {
   &--propose {
     background: var(--ed-gradient-fab-warn);
     box-shadow: 0 8px 24px var(--ed-action-warning-shadow-lg);

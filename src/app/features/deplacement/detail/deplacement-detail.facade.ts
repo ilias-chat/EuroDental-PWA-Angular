@@ -435,7 +435,13 @@ export class DeplacementDetailFacade {
   // ─── Add task ─────────────────────────────────────────────────────────────
 
   openAddTaskModal(): void {
-    this.showAddTaskModal.set(true);
+    if (this.auth.canCreateTasks() && this.canWriteDeployment() && this.deployment()?.is_responsible) {
+      this.showAddTaskModal.set(true);
+    }
+  }
+
+  canCreateTasks(): boolean {
+    return this.auth.canCreateTasks();
   }
 
   closeAddTaskModal(): void {

@@ -73,6 +73,8 @@ export class AuthService {
     return (
       this.hasPermission('mobile_tasks') ||
       this.hasPermission('mobile_tasks_read') ||
+      this.hasPermission('tasks_view_all') ||
+      this.hasPermission('tasks_write') ||
       this.hasTasksAdminPermission()
     );
   }
@@ -101,9 +103,14 @@ export class AuthService {
     return this.hasPermission('tasks_tracking');
   }
 
-  /** Laravel mobile create task (`/mobile/tasks` FAB). */
+  /** Creation and editing use the same task write permission. */
   canCreateTasks(): boolean {
-    return this.hasPermission('mobile_tasks_write');
+    return this.hasPermission('tasks_write');
+  }
+
+  /** Assigning another main technician requires both global scope and task management. */
+  canAssignMainTechnician(): boolean {
+    return this.hasPermission('tasks_view_all') && this.hasPermission('tasks_write');
   }
 
   /** Laravel mobile tickets: `tickets_create` or `tickets_manage`. */

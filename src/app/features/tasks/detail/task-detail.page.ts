@@ -8,6 +8,7 @@ import {
   IonSpinner,
 } from '@ionic/angular/standalone';
 import { AppHeaderComponent } from '@shared/components/app-header/app-header.component';
+import { AuthService } from '@core/auth/auth.service';
 import { DetailTab } from './task-detail.types';
 import { TaskDetailFacade } from './task-detail.facade';
 import { TaskDetailModalsComponent } from './modals/task-detail-modals.component';
@@ -42,6 +43,20 @@ export class TaskDetailPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   readonly f = inject(TaskDetailFacade);
+  readonly auth = inject(AuthService);
+
+  canEditTask(): boolean {
+    const task = this.f.task();
+    return !!task && this.auth.canCreateTasks() &&
+      (this.auth.hasPermission('tasks_view_all') || task.is_main_technician);
+  }
+
+  editTask(): void {
+    const task = this.f.task();
+    if (task && this.canEditTask()) {
+      void this.router.navigate(['/tasks', task.id, 'edit']);
+    }
+  }
 
   ngOnInit(): void {
     const taskId = Number(this.route.snapshot.paramMap.get('id'));

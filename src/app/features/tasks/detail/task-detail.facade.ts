@@ -230,7 +230,8 @@ export class TaskDetailFacade {
   }
 
   canEditDescription(t: TaskDetail): boolean {
-    return canEditDescriptionRule(t);
+    return this.auth.hasPermission('tasks_write') &&
+      (this.auth.hasPermission('tasks_view_all') || canEditDescriptionRule(t));
   }
 
   parsedDescription(text: string | null | undefined): SafeHtml {
@@ -240,7 +241,7 @@ export class TaskDetailFacade {
   openDescriptionEditModal(): void {
     const t = this.task();
     if (!t || !this.canEditDescription(t)) {
-      void this.presentToast('Seul le technicien principal peut modifier la description.', 'warning');
+      void this.presentToast('Vous ne pouvez pas modifier cette tâche.', 'warning');
       return;
     }
     this.descriptionEdit.set(t.description ?? '');
@@ -276,7 +277,7 @@ export class TaskDetailFacade {
       return;
     }
     if (!this.canEditDescription(t)) {
-      void this.presentToast('Seul le technicien principal peut modifier la description.', 'warning');
+      void this.presentToast('Vous ne pouvez pas modifier cette tâche.', 'warning');
       return;
     }
 

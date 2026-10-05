@@ -7,8 +7,10 @@ import {
   TaskCreateClientsResponse,
   TaskDetail,
   TaskEventsResponse,
+  TaskFormUsersResponse,
   TaskListItem,
   TaskTypesResponse,
+  UpdateTaskPayload,
 } from '@core/models/task.model';
 
 @Injectable({ providedIn: 'root' })
@@ -71,5 +73,13 @@ export class TaskApiService {
     return this.http.get<TaskCreateClientsResponse>(`${this.base}/tasks/create/clients`, {
       params: { q, page, per_page: perPage },
     });
+  }
+
+  updateTask(id: number, payload: UpdateTaskPayload) {
+    return this.http.put<CreateTaskResponse>(`${this.base}/tasks/${id}`, payload);
+  }
+
+  taskFormUsers() {
+    return this.http.get<TaskFormUsersResponse>(`${this.base}/users`);
   }
 }

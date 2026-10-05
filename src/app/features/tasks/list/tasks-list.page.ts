@@ -66,7 +66,7 @@ export class TasksListPage implements OnInit, ViewWillEnter {
   readonly showPastTasksModal = signal(false);
   readonly loadingPastTasks = signal(false);
   readonly showCreateTaskModal = signal(false);
-  readonly canCreateTasks = signal(this.auth.canCreateTasks());
+  readonly canCreateTasks = computed(() => this.auth.canCreateTasks());
 
   private loadedRangeKeys = new Set<string>();
   private pendingPastTaskNavigation: number | null = null;
@@ -166,6 +166,7 @@ export class TasksListPage implements OnInit, ViewWillEnter {
   }
 
   openCreateTaskModal(): void {
+    if (!this.canCreateTasks()) return;
     this.showCreateTaskModal.set(true);
   }
 

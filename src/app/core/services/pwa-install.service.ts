@@ -1,4 +1,5 @@
 import { Injectable, computed, signal } from '@angular/core';
+import { environment } from '@environments/environment';
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -10,11 +11,12 @@ interface BeforeInstallPromptEvent extends Event {
 export class PwaInstallService {
   private readonly deferredPrompt = signal<BeforeInstallPromptEvent | null>(null);
   readonly isStandalone = signal(this.detectStandaloneMode());
+  readonly canUseApp = computed(() => this.isStandalone() || this.isLocalDevelopment());
   readonly canInstall = computed(() => this.deferredPrompt() !== null);
   readonly isIos = this.detectIos();
   readonly isSafari = this.detectSafari();
   constructor() {
-    if (!this.isStandalone()) {
+    if (!this.canUseApp()) {
       document.documentElement.setAttribute('data-ed-theme', 'light');
       document.documentElement.style.colorScheme = 'light';
     }
@@ -43,6 +45,11 @@ export class PwaInstallService {
   private detectStandaloneMode(): boolean {
     return window.matchMedia('(display-mode: standalone)').matches ||
       Boolean((window.navigator as Navigator & { standalone?: boolean }).standalone);
+  }
+
+  private isLocalDevelopment(): boolean {
+    return !environment.production &&
+      ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
   }
 
   private detectIos(): boolean {

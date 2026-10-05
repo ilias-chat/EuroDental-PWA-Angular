@@ -1,0 +1,51 @@
+<app-app-header [showBack]="true" [backHref]="backHref" />
+
+<ion-content class="edit-content ed-content-padded">
+  <div class="ed-page edit-page">
+    <header class="edit-heading">
+      <h1>Modifier la tâche</h1>
+      @if (task()?.reference) {
+        <p class="ed-body-md">Réf. {{ task()?.reference }}</p>
+      }
+    </header>
+
+    @if (loading()) {
+      <div class="edit-loading" role="status" aria-label="Chargement de la tâche">
+        <ion-spinner name="crescent" color="primary" />
+      </div>
+    } @else {
+      @if (error()) {
+        <div class="edit-error" role="alert">
+          <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+          <span>{{ error() }}</span>
+        </div>
+      }
+      @if (task()) {
+        <fieldset class="edit-form" [disabled]="saving()" aria-label="Informations de la tâche">
+          <app-task-form-fields [allowReferenceGeneration]="false" />
+        </fieldset>
+      } @else {
+        <button type="button" class="edit-retry" (click)="loadTask()">
+          <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+          Réessayer
+        </button>
+      }
+    }
+  </div>
+</ion-content>
+
+@if (task() && !loading()) {
+  <footer class="edit-footer">
+    <div class="edit-footer__inner">
+      <button type="button" class="edit-cancel" [disabled]="saving()" (click)="cancel()">Annuler</button>
+      <button type="button" class="edit-save" [disabled]="saving()" (click)="save()">
+        @if (saving()) {
+          <ion-spinner name="crescent" />
+        } @else {
+          <i class="fa-solid fa-check" aria-hidden="true"></i>
+        }
+        Enregistrer
+      </button>
+    </div>
+  </footer>
+}

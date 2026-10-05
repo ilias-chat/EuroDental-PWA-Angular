@@ -17,7 +17,10 @@
   </ion-segment>
 </div>
 
-<ion-content class="detail-content ed-content-padded">
+<ion-content
+  class="detail-content ed-content-padded"
+  [class.detail-content--with-edit]="canEditTask() && f.tab() === 'info'"
+>
   @if (f.loading()) {
     <div class="center"><ion-spinner name="crescent" color="primary"></ion-spinner></div>
   } @else if (f.task()) {
@@ -42,6 +45,17 @@
 </ion-content>
 
 @if (f.task(); as t) {
+  @if (canEditTask() && f.tab() === 'info' && !f.loading()) {
+    <button
+      type="button"
+      class="task-edit-fab"
+      (click)="editTask()"
+      aria-label="Modifier la tâche"
+      title="Modifier la tâche"
+    >
+      <i class="fa-solid fa-pen" aria-hidden="true"></i>
+    </button>
+  }
   @if (f.tab() === 'services' && !f.isAdminDeliveryAutoTask(t) && f.canManageServices(t)) {
     <div class="services-fab-group" role="group" aria-label="Actions services">
       <button

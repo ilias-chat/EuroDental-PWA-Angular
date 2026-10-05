@@ -1,10 +1,12 @@
 import { computed, DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastController } from '@ionic/angular/standalone';
+import { AuthService } from '@core/auth/auth.service';
 import { TaskApiService } from '@core/services/task-api.service';
 import {
   ClientSearchItem,
   CreateTaskPayload,
+  TaskDetail,
   TaskFormUserOption,
   TaskTypeItem,
 } from '@core/models/task.model';
@@ -23,8 +25,9 @@ interface CreateTaskFormState {
 }
 
 @Injectable()
-export class CreateTaskModalFacade {
+export class TaskFormFacade {
   private readonly api = inject(TaskApiService);
+  private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly toast = inject(ToastController);
 
@@ -33,6 +36,8 @@ export class CreateTaskModalFacade {
   readonly creating = signal(false);
 
   readonly isDeploymentContext = signal(false);
+  readonly canChooseMainTechnician = signal(false);
+  readonly currentUserName = computed(() => this.auth.user()?.name ?? '');
   readonly deploymentMembers = signal<TaskFormUserOption[]>([]);
 
   readonly selectedClient = signal<ClientSearchItem | null>(null);
@@ -77,26 +82,70 @@ export class CreateTaskModalFacade {
   private taskTypesLoaded = false;
   private clientSearchTimer: ReturnType<typeof setTimeout> | null = null;
 
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      if (this.clientSearchTimer) clearTimeout(this.clientSearchTimer);
+    });
+  }
+
   init(defaultDate: string, deploymentId: number | null, members: TaskFormUserOption[]): void {
     this.deploymentId = deploymentId;
-    this.isDeploymentContext.set(members.length > 0);
+    const isDeploymentContext = deploymentId !== null;
+    this.isDeploymentContext.set(isDeploymentContext);
+    this.canChooseMainTechnician.set(this.auth.canAssignMainTechnician());
     this.deploymentMembers.set(members);
 
     this.form.set({
       ...this.emptyForm(),
       task_date: defaultDate,
-      technician_id: null,
+      technician_id: this.auth.user()?.id ?? null,
     });
     this.selectedTechnician.set(null);
     this.helpingUsers.set([]);
     this.resetClientPicker();
     this.closeUserDropdowns();
     this.loadTaskTypesIfNeeded();
+    if (!isDeploymentContext) {
+      this.loadTaskFormUsers();
+    }
+  }
+
+  initForEdit(task: TaskDetail): void {
+    this.init(task.task_date, task.deployment_id ?? null, []);
+    this.form.set({
+      task_name: task.task_name,
+      reference: task.reference ?? '',
+      autoGenerateReference: false,
+      task_type: task.task_type,
+      description: task.description ?? '',
+      client_id: task.client_id,
+      task_date: task.task_date,
+      technician_id: task.technician?.id ?? this.auth.user()?.id ?? null,
+      helping_user_ids: task.helping_users.map((user) => user.id),
+    });
+    this.selectedTechnician.set(task.technician);
+    this.helpingUsers.set(task.helping_users);
+    if (task.client_id) {
+      this.selectedClient.set({
+        id: task.client_id,
+        name: task.client_name ?? 'Client',
+        city: task.client_city,
+        image: task.client_image,
+      });
+    }
+  }
+
+  setUserOptions(users: TaskFormUserOption[]): void {
+    const current = this.selectedTechnician();
+    this.deploymentMembers.set(current && !users.some((user) => user.id === current.id)
+      ? [current, ...users]
+      : users);
   }
 
   reset(): void {
     this.deploymentId = null;
     this.isDeploymentContext.set(false);
+    this.canChooseMainTechnician.set(false);
     this.deploymentMembers.set([]);
     this.form.set(this.emptyForm());
     this.selectedTechnician.set(null);
@@ -218,6 +267,7 @@ export class CreateTaskModalFacade {
   addHelpingUser(): void {
     const user = this.selectedHelpingUser();
     if (!user) return;
+    if (user.id === this.form().technician_id) return;
     if (this.helpingUsers().some((u) => u.id === user.id)) return;
     this.helpingUsers.update((list) => [...list, user]);
     this.form.update((f) => ({
@@ -241,6 +291,10 @@ export class CreateTaskModalFacade {
   }
 
   submit(onSuccess: (taskId: number) => void): void {
+    if (!this.auth.canCreateTasks()) {
+      void this.presentToast('Vous ne pouvez pas créer de tâche.');
+      return;
+    }
     const form = this.form();
     if (!form.task_name.trim() || !form.task_type || !form.task_date || this.creating()) {
       return;
@@ -259,8 +313,10 @@ export class CreateTaskModalFacade {
       client_id: form.client_id,
       task_date: form.task_date,
       deployment_id: this.deploymentId,
-      technician_id: this.isDeploymentContext() ? form.technician_id : null,
-      helping_user_ids: this.isDeploymentContext() ? form.helping_user_ids : [],
+      technician_id: this.canChooseMainTechnician()
+        ? form.technician_id
+        : (this.auth.user()?.id ?? null),
+      helping_user_ids: form.helping_user_ids,
     };
 
     this.api
@@ -342,6 +398,16 @@ export class CreateTaskModalFacade {
           this.taskTypesLoaded = true;
         },
         error: () => undefined,
+      });
+  }
+
+  private loadTaskFormUsers(): void {
+    this.api
+      .taskFormUsers()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.setUserOptions(res.users ?? []),
+        error: () => this.deploymentMembers.set([]),
       });
   }
 

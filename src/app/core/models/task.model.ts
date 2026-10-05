@@ -66,6 +66,7 @@ export interface WarrantyProduct {
 }
 
 export interface TaskDetail extends TaskListItem {
+  deployment_id?: number | null;
   events: TaskEvent[];
   services: TaskService[];
   service_propositions: ServiceProposition[];
@@ -145,6 +146,11 @@ export interface TaskCreateClientsResponse {
   pagination: ClientPickerPagination;
 }
 
+export interface TaskFormUsersResponse {
+  success: boolean;
+  users: TaskFormUserOption[];
+}
+
 export interface CreateTaskPayload {
   task_name: string;
   reference?: string | null;
@@ -162,6 +168,8 @@ export interface CreateTaskResponse {
   message?: string;
   task?: { id: number; reference?: string | null };
 }
+
+export type UpdateTaskPayload = Omit<CreateTaskPayload, 'deployment_id'>;
 
 export interface TaskTypesResponse {
   success: boolean;

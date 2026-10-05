@@ -1,0 +1,135 @@
+@use '../../../../theme/host-surfaces';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+:host ::ng-deep {
+  @include host-surfaces.apply-page-surfaces;
+}
+
+.edit-content {
+  --background: var(--ed-surface);
+  flex: 1;
+  min-height: 0;
+}
+
+.edit-page {
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+.edit-heading {
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--ed-surface-container-highest);
+
+  h1 {
+    margin: 0;
+    color: var(--ed-on-surface);
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  p {
+    margin: 8px 0 0;
+    color: var(--ed-on-surface-variant);
+  }
+}
+
+.edit-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.edit-form {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.edit-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  border-radius: var(--ed-radius-md);
+  background: var(--ed-error-container);
+  color: var(--ed-error);
+  font-size: 14px;
+  line-height: 1.5;
+
+  i {
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+}
+
+.edit-footer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--ed-surface-container-highest);
+  background: var(--ed-surface-container-lowest);
+  padding: 12px var(--ed-container-padding) calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+.edit-footer__inner {
+  display: flex;
+  gap: 12px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.edit-cancel,
+.edit-save,
+.edit-retry {
+  min-height: 48px;
+  border: 0;
+  border-radius: var(--ed-radius-full);
+  padding: 12px 20px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ed-primary);
+    outline-offset: 3px;
+  }
+}
+
+.edit-cancel {
+  color: var(--ed-on-surface);
+  background: var(--ed-surface-container);
+}
+
+.edit-save {
+  flex: 1;
+  color: var(--ed-on-primary);
+  background: var(--ed-primary);
+  box-shadow: 0 4px 14px var(--ed-primary-alpha-22);
+
+  ion-spinner {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.edit-retry {
+  color: var(--ed-primary);
+  background: var(--ed-primary-fixed);
+}

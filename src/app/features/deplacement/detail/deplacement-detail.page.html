@@ -38,7 +38,7 @@
 </ion-content>
 
 @if (f.deployment(); as dep) {
-  @if (f.tab() === 'tasks' && dep.is_responsible && f.canWriteDeployment()) {
+  @if (f.tab() === 'tasks' && dep.is_responsible && f.canWriteDeployment() && f.canCreateTasks()) {
     <button
       type="button"
       class="deploy-add-task-fab"

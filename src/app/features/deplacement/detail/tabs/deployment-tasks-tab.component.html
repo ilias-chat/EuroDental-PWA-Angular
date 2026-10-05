@@ -6,7 +6,7 @@
           <i class="fa-solid fa-list-check"></i>
         </span>
         <p class="ed-body-md">Aucune tâche dans ce déplacement</p>
-        @if (dep.is_responsible && f.canWriteDeployment()) {
+        @if (dep.is_responsible && f.canWriteDeployment() && f.canCreateTasks()) {
           <button type="button" class="empty-box__action" (click)="f.openAddTaskModal()">
             <i class="fa-solid fa-plus" aria-hidden="true"></i>
             <span>Ajouter une tâche</span>

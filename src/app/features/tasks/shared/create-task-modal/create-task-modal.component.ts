@@ -1,18 +1,18 @@
 import { Component, effect, inject, input, model, output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { IonModal, IonSpinner } from '@ionic/angular/standalone';
 import { TaskFormUserOption } from '@core/models/task.model';
-import { CreateTaskModalFacade } from './create-task-modal.facade';
+import { TaskFormFacade } from '../task-form/task-form.facade';
+import { TaskFormFieldsComponent } from '../task-form/task-form-fields.component';
 
 @Component({
   selector: 'app-create-task-modal',
   standalone: true,
-  providers: [CreateTaskModalFacade],
-  imports: [IonModal, IonSpinner, FormsModule],
+  providers: [TaskFormFacade],
+  imports: [IonModal, IonSpinner, TaskFormFieldsComponent],
   templateUrl: './create-task-modal.component.html',
 })
 export class CreateTaskModalComponent {
-  readonly f = inject(CreateTaskModalFacade);
+  readonly f = inject(TaskFormFacade);
 
   readonly isOpen = model(false);
   readonly defaultDate = input.required<string>();
