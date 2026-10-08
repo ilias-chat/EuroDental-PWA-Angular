@@ -184,9 +184,10 @@
 
 .calendar-day {
   position: relative;
-  height: 56px;
+  min-height: 84px;
+  box-sizing: border-box;
   margin: 0;
-  padding: 6px 4px 18px;
+  padding: 6px 4px 8px;
   border-radius: 10px;
   border: 1px solid var(--ed-surface-container-highest);
   background: var(--ed-surface-container-lowest);
@@ -229,16 +230,15 @@
 }
 
 .calendar-dots {
-  position: absolute;
-  bottom: 6px;
-  left: 0;
-  right: 0;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 3px;
   max-width: 100%;
-  padding: 0 2px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: auto;
+  padding: 8px 2px 0;
 }
 
 .calendar-dot {
